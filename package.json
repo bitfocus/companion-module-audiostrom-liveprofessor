@@ -1,0 +1,22 @@
+{
+  "name": "audiostrom-liveprofessor",
+  "version": "1.0.0",
+  "description": "LiveProfessor OSC",
+  "manufacturer": "Audioström",
+  "product": "LiveProfessor",
+  "shortname": "LiveProfessor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "legacy": [
+    "LiveProfessor"
+  ],
+  "keywords": [
+  "Software",
+  "Sound"
+],
+
+  "author": "audiostrom",
+  "license": "ISC"
+}
