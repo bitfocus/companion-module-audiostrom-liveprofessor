@@ -93,7 +93,7 @@ exports.getPresets  = function() {
         label: 'Recall Cue by number',
         bank: {
             style: 'text',
-            text: 'Cue 1',
+            text: 'Recall Cue',
             color: '16777215',
             size: 'auto',
             bgcolor: this.rgb(0, 0, 0)
@@ -120,6 +120,67 @@ exports.getPresets  = function() {
             action: 'FireNextCue'
         }]
     });
+
+    presets.push({
+        category: 'Cues',
+        label: 'GO Previous Cue',
+        bank: {
+            style: 'text',
+            text: 'GO Previous',
+            size: 'auto',
+            color: '16777215',
+            bgcolor: this.rgb(0, 0, 0)
+        },
+        actions: [{
+            action: 'FirePreviousCue'
+        }]
+    });
+
+    presets.push({
+        category: 'Cues',
+        label: 'Cue list Step Up',
+        bank: {
+            style: 'text',
+            text: 'Up',
+            size: 'auto',
+            color: '16777215',
+            bgcolor: this.rgb(0, 0, 0)
+        },
+        actions: [{
+            action: 'StepUp'
+        }]
+    });
+
+    presets.push({
+        category: 'Cues',
+        label: 'Cue list Step Down',
+        bank: {
+            style: 'text',
+            text: 'Down',
+            size: 'auto',
+            color: '16777215',
+            bgcolor: this.rgb(0, 0, 0)
+        },
+        actions: [{
+            action: 'StepDown'
+        }]
+    });
+
+    presets.push({
+        category: 'Cues',
+        label: 'Stop All Cues',
+        bank: {
+            style: 'text',
+            text: 'Stop',
+            size: 'auto',
+            color: '16777215',
+            bgcolor: this.rgb(0, 0, 0)
+        },
+        actions: [{
+            action: 'StopAllCues'
+        }]
+    });
+
 
     return presets;
 }
