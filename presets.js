@@ -2,7 +2,7 @@ exports.getPresets  = function() {
     var presets = [];
 
     var i;
-    for (i = 1; i < 20; i++) {
+    for (i = 1; i < 25; i++) {
         presets.push({
             category: 'Global Snapshots',
             label: 'Global Snapshot '+i,
@@ -39,6 +39,7 @@ exports.getPresets  = function() {
                 style: 'text',
                 text: 'Button '+i,
                 color: '16777215',
+                size: 'auto',
                 bgcolor: this.rgb(0, 0, 0)
             },
             actions: [{
@@ -58,6 +59,34 @@ exports.getPresets  = function() {
         });
     }
 
+    for (i = 1; i < 25; i++) {
+        presets.push({
+            category: 'View Sets',
+            label: 'View Set '+i,
+            bank: {
+                style: 'text',
+                text: '$(LiveProfessor:ViewSetName'+i+')',
+                size: 'auto',
+                color: '16777215',
+                bgcolor: this.rgb(0, 0, 0)
+            },
+            actions: [{
+                action: 'recallviewset',
+                options: {
+                    viewset: i
+                }
+            }],
+            feedbacks: [
+                {
+                    type: 'viewsetrecalled',
+                    options: {
+                        viewset: i,
+                    }
+                }
+            ]
+        });
+    }
+
 
     presets.push({
         category: 'Cues',
@@ -66,6 +95,7 @@ exports.getPresets  = function() {
             style: 'text',
             text: 'Cue 1',
             color: '16777215',
+            size: 'auto',
             bgcolor: this.rgb(0, 0, 0)
         },
         actions: [{

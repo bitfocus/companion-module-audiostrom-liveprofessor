@@ -158,7 +158,21 @@ exports.getActions  = function() {
 		]
 	}
 
-
+	actions['recallviewset'] = {
+		label: 'Recall View Set #',
+		options: [
+			{
+				label: 'number',
+				type: 'number',
+				id: 'viewset',
+				width: 64,
+				default: 1,
+				min: 1,
+				max: 9999,
+				tooltip: 'You can recall a view set by its number'
+			}
+		]
+	}
 
 		actions['GenericButton'] = {
 			label: 'Generic Button',

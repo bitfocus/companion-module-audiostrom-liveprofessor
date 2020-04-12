@@ -50,7 +50,7 @@ class instance extends instance_skel {
             {
                 type:    'textinput',
                 id:      'receiveport',
-                label:   'LiveProfessor output port (dfault 8011)',
+                label:   'LiveProfessor output port (default 8011)',
                 width:   6,
                 regex:   this.REGEX_PORT,
 
@@ -123,6 +123,14 @@ class instance extends instance_skel {
             case 'Gototop':
                 arg = []
                 cmd = '/Command/CueLists/Gototop'
+                break;
+
+            case 'recallviewset':
+                arg = [ {
+                    type: "i",
+                    value: parseInt(opt.viewset)-1
+                }]
+                cmd = '/ViewSets/Recall'
                 break;
 
             case 'genericcommand':
@@ -215,16 +223,41 @@ class instance extends instance_skel {
         }
 
 
+        feedbacks['viewsetrecalled'] = {
+            label: 'View Set Recalled',
+            description: 'Change color when view set matches',
+            options: [
+                {
+                    type: 'colorpicker',
+                    label: 'Foreground color',
+                    id: 'fg',
+                    default: this.rgb(0, 0, 0)
+                },
+                {
+                    type: 'colorpicker',
+                    label: 'Background color',
+                    id: 'bg',
+                    default: this.rgb(94, 194, 232)
+                },
+                {
+                    label: 'View Set Number',
+                    type: 'number',
+                    id: 'viewset',
+                    width: 64,
+                    default: 0,
+                    min: 0,
+                    max: 9999
+                }
+            ]
+        }
+
         this.setFeedbackDefinitions(feedbacks)
     }
 
     //Seems to store some states
     feedback(feedback) {
 
-        console.log("****feedback")
-
         if (feedback.type === 'GenericButton') {
-            console.log("feedback GenericButton")
             if (states["GenericButton"+feedback.options.buttonNr] == 1) {
                 return { color: feedback.options.fg, bgcolor: feedback.options.bg }
             }
@@ -234,17 +267,20 @@ class instance extends instance_skel {
 
 
             if (states['currentGs'].id === (parseInt(feedback.options.snapshotnr)-1)) {
-                console.log("feedback snapshotrecalled")
                 return { color: feedback.options.fg, bgcolor: feedback.options.bg }
             } else if (states['currentGs'].name === (feedback.options.snapshotname)) {
 
-                console.log("feedback snapshotrecalled")
                 return { color: feedback.options.fg, bgcolor: feedback.options.bg }
             }
         }
 
+        if (feedback.type === 'viewsetrecalled') {
 
-       console.log(feedback)
+            if (states['currentViewSet'] === (parseInt(feedback.options.viewset)-1)) {
+                return { color: feedback.options.fg, bgcolor: feedback.options.bg }
+            }
+        }
+
         return {}
     }
 
@@ -264,7 +300,9 @@ class instance extends instance_skel {
         this.status(this.STATE_OK)
         this.init_presets()
         states['currentGs']={'id':-1, 'name':''};
-
+        states['currentViewSet']=-1;
+        this.sendOSC('/LiveProfessor/ViewSets/Refresh', [])
+        this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
     }
 
     updateConfig(config) {
@@ -293,6 +331,9 @@ class instance extends instance_skel {
             variables.push( { name: 'GenericButtonName'+i, label: 'Button Name Name '+i })
         }
 
+        for (i = 1; i < 100; i++) {
+            variables.push( { name: 'ViewSetName'+i, label: 'Name of View Set '+i })
+        }
 
         this.setVariableDefinitions(variables)
 
@@ -366,7 +407,7 @@ class instance extends instance_skel {
             });
 
             this.qSocket.on("data", (data) => {
-                // console.log("Got: ",data, "from",this.qSocket.options.address);
+
             });
         }
     }
@@ -375,18 +416,20 @@ class instance extends instance_skel {
         console.log("Got address: ", message.address);
         console.log("Got args: ", message.args);
 
-        let address = message.address
-        let args = message.args
-        let channelNumber
+        let address = message.address;
+        let args = message.args;
+
+
+        /* Cues */
 
         if (address.match('LiveProfessor/CueLists/NextCue')) {
             this.setVariable('NextCueName', args[0].value);
         }
-        if (address.match('LiveProfessor/CueLists/ActiveCue')) {
+        else if (address.match('LiveProfessor/CueLists/ActiveCue')) {
             this.setVariable('ActiveCueName', args[0].value);
         }
 
-        if (address.match('/LiveProfessor/GlobalSnapshots/Recalled')) {
+        else if (address.match('/LiveProfessor/GlobalSnapshots/Recalled')) {
 
             states['currentGs']={'id':args[1].value, 'name':args[0].value};
             this.setVariable('GSname'+args[1].value+1, args[0].value);
@@ -395,41 +438,51 @@ class instance extends instance_skel {
             this.checkFeedbacks('gsrecalled')
 
         }
+        /* Global Snapshots */
+        else if (address.match('/LiveProfessor/GlobalSnapshots/Name')) {
 
-        if (address.match('/LiveProfessor/GlobalSnapshots/Name')) {
-
-            //states['currentGs']={'id':args[1].value, 'name':args[0].value};
             this.setVariable('GSname'+(args[1].value+1), args[0].value);
-            console.log("name updated");
-
-
         }
-        if (address.match('/LiveProfessor/GlobalSnapshots/Added')) {
+        else if (address.match('/LiveProfessor/GlobalSnapshots/Added')) {
 
 
             this.setVariable('GSname'+(args[1].value+1), args[0].value);
-            console.log("Snapshot added");
-
         }
 
-        if (address.match('/LiveProfessor/GlobalSnapshots/Removed')) {
+        else if (address.match('/LiveProfessor/GlobalSnapshots/Removed')) {
 
             this.setVariable('GSname'+(args[1].value+1), "Snap "+args[1].value+1);
             this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
         }
 
-        if (address.match('/LiveProfessor/GlobalSnapshots/Moved')) {
+        else if (address.match('/LiveProfessor/GlobalSnapshots/Moved')) {
 
             this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
         }
+        /* View Sets */
+        else if (address.match('/LiveProfessor/ViewSets/Recalled')) {
 
+            states['currentViewSet']=args[0].value
+            this.checkFeedbacks('viewsetrecalled')
+
+        }
+        else if (address.match('/LiveProfessor/ViewSets/Changed')) {
+
+            this.sendOSC('/LiveProfessor/ViewSets/Refresh', [])
+        }
+        else if (address.match('/LiveProfessor/ViewSets/Update')) {
+
+            this.setVariable('ViewSetName'+(args[1].value+1), args[0].value);
+
+        }
+
+        /* Generic Buttons */
         if (address.match('/LiveProfessor/GenericButton')) {
 
             //Get button nr:
-            var nr = parseInt(address.substring(36));
+            let nr = parseInt(address.substring(36));
             states['GenericButton'+nr]=args[0].value;
-          console.log("GenericButton"+nr+": ", states['GenericButton'+nr]);
-          this.checkFeedbacks('GenericButton')
+            this.checkFeedbacks('GenericButton')
 
         } else {
             debug(message.address, message.args);

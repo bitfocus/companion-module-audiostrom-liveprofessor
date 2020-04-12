@@ -13,6 +13,7 @@ This module is designed to be used with the Companion controller-type in LivePro
 * Cue list Step Down
 * Cue list Go To Top
 * Recall cue (Cue number)
+* Recall View Sets
 * Generic Controller Buttons 1 - 24 Can be mapped inside LiveProfessor
 
 #### List of Application Commands
