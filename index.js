@@ -6,6 +6,7 @@ var OSC           = require('osc');
 var debug;
 var log;
 let states = {};
+var tempoTimer;
 
 class instance extends instance_skel {
 
@@ -16,10 +17,18 @@ class instance extends instance_skel {
         Object.assign(this, {...presets})
         this.actions()
 
+
+
+
     }
 
     actions(system) {
         this.setActions(this.getActions());
+    }
+
+    myTimer() {
+        states['tempoflash']= !states['tempoflash'];
+        this.checkFeedbacks('tempoflash')
     }
 
     config_fields() {
@@ -39,21 +48,6 @@ class instance extends instance_skel {
                 width:   6,
                 default: '127.0.0.1',
                 regex:   this.REGEX_IP
-            },
-            {
-                type:    'textinput',
-                id:      'port',
-                label:   'LiveProfessor input port (default 8010)',
-                width:   6,
-                regex:   this.REGEX_PORT,
-            },
-            {
-                type:    'textinput',
-                id:      'receiveport',
-                label:   'LiveProfessor output port (default 8011)',
-                width:   6,
-                regex:   this.REGEX_PORT,
-
             }
         ]
     }
@@ -251,6 +245,45 @@ class instance extends instance_skel {
             ]
         }
 
+        feedbacks['ping'] = {
+            label: 'Ping',
+            description: 'Change color when ping is received',
+            options: [
+                {
+                    type: 'colorpicker',
+                    label: 'Foreground color',
+                    id: 'fg',
+                    default: this.rgb(0, 0, 0)
+                },
+                {
+                    type: 'colorpicker',
+                    label: 'Background color',
+                    id: 'bg',
+                    default: this.rgb(94, 255, 0)
+                }
+            ]
+        }
+
+        feedbacks['tempoflash'] = {
+            label: 'Tempo Tap Flash',
+            description: 'Change color when ping is received',
+
+            options: [
+                {
+                    type: 'colorpicker',
+                    label: 'Foreground color',
+                    id: 'fg',
+                    default: this.rgb(0, 0, 0)
+                },
+                {
+                    type: 'colorpicker',
+                    label: 'Background color',
+                    id: 'bg',
+                    default: this.rgb(94, 255, 0)
+                }
+            ]
+        }
+        console.log("init feedbacks")
         this.setFeedbackDefinitions(feedbacks)
     }
 
@@ -281,6 +314,23 @@ class instance extends instance_skel {
             }
         }
 
+        if (feedback.type === 'ping') {
+
+            if (states['ping']==true){
+                return { color: feedback.options.fg, bgcolor: feedback.options.bg }
+            }
+        }
+        if (feedback.type === 'tempoflash') {
+
+            if (states['tempoflash']==true){
+               if (feedback.options)
+               {
+                   return { color: feedback.options.fg, bgcolor: feedback.options.bg }
+               }
+
+            }
+        }
+
         return {}
     }
 
@@ -292,17 +342,24 @@ class instance extends instance_skel {
     init() {
         debug = this.debug;
         log = this.log;
+        console.log("Init Lp")
         if (this.config.receiveport<1) this.config.receiveport = 8011
         if (this.config.port<1) this.config.port = 8010
-        this.init_osc();
+
+        console.log("Init OSC")
         this.init_feedbacks();
         this.init_variables()
         this.status(this.STATE_OK)
         this.init_presets()
+        this.init_osc();
         states['currentGs']={'id':-1, 'name':''};
         states['currentViewSet']=-1;
+        states['ping']=false;
+        states['tempoflash']=false;
+        console.log("Send refresh")
         this.sendOSC('/LiveProfessor/ViewSets/Refresh', [])
         this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
+        this.sendOSC('/LiveProfessor/Init', [])
     }
 
     updateConfig(config) {
@@ -340,6 +397,7 @@ class instance extends instance_skel {
         for (i = 1; i < 100; i++) {
             this.setVariable('GSName' + i, "Snap " + (i + 1))
         }
+        variables.push( { name:'tempo', label: 'Tempo' })
     }
 
     connect() {
@@ -355,24 +413,27 @@ class instance extends instance_skel {
     init_osc() {
 
         if (this.connecting) {
+            console.log("Connecting")
             return;
         }
 
         if (this.qSocket) {
             this.qSocket.close();
         }
-
-        if (this.config.host) {
+        console.log("****** TRY *******")
+        console.log(this.config.host)
+        var hostAddress = "127.0.0.1"
+        if (this.config.host) hostAddress = this.config.host
 
 
            if (this.config.receiveport<1) this.config.receiveport = 8011
             if (this.config.port<1) this.config.port = 8010
-
+            console.log("Connecting...")
             this.qSocket = new OSC.UDPPort({
-                localAddress: "0.0.0.0",
-                localPort: this.config.receiveport,
-                address: this.config.host,
-                port: this.config.port,
+                localAddress: "127.0.0.1",
+                localPort: 8011,//this.config.receiveport,
+                address: hostAddress,
+                port: 8010,//this.config.port,
                 metadata: true
             });
             this.connecting = true;
@@ -382,6 +443,7 @@ class instance extends instance_skel {
             this.qSocket.on("error", (err) => {
                 debug("Error", err);
                 this.log('error', "Error: " + err.message);
+                console.log('error', "Error: " + err.message);
                 this.connecting = false;
                 this.status(this.STATUS_ERROR, "Can't connect to LiveProfessor");
                 if (err.code == "ECONNREFUSED") {
@@ -391,13 +453,15 @@ class instance extends instance_skel {
 
             this.qSocket.on("close", () => {
                 this.log('error', "Connection to LiveProfessor Closed");
+                console.log('error', "Connection to LiveProfessor Closed");
                 this.connecting = false;
                 this.status(this.STATUS_WARNING, "CLOSED");
             });
 
             this.qSocket.on("ready", () => {
                 this.connecting = false;
-                this.log('info',"Connected to LiveProfessor:" + this.config.host);
+                this.log('info',"Connected to LiveProfessor:" + hostAddress);
+                console.log('info',"Connected to LiveProfessor:" + hostAddress);
                 this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
             });
 
@@ -409,7 +473,7 @@ class instance extends instance_skel {
             this.qSocket.on("data", (data) => {
 
             });
-        }
+
     }
 
     processMessage(message) {
@@ -435,7 +499,7 @@ class instance extends instance_skel {
             this.setVariable('GSname'+args[1].value+1, args[0].value);
             this.setVariable('ActiveGlobalSnapshot', args[0].value);
 
-            this.checkFeedbacks('gsrecalled')
+            this.checkFeedbacks('snapshotrecalled')
 
         }
         /* Global Snapshots */
@@ -475,7 +539,20 @@ class instance extends instance_skel {
             this.setVariable('ViewSetName'+(args[1].value+1), args[0].value);
 
         }
-
+        if (address.match('/LiveProfessor/Ping')) {
+            //Get button nr:
+            states['ping']= !states['ping'];
+            this.checkFeedbacks('ping')
+        }
+        if (address.match('/LiveProfessor/TempoChange')) {
+            //Get button nr:
+            states['tempoflash']= !states['tempoflash'];
+            let tempo = args[0].value;
+            this.setVariable('tempo', Math.round(tempo));
+            clearInterval(tempoTimer);
+            var _this = this;
+            tempoTimer = setInterval(function() { _this.myTimer(); }, (60000/tempo)/2);
+        }
         /* Generic Buttons */
         if (address.match('/LiveProfessor/GenericButton')) {
 
@@ -496,10 +573,7 @@ class instance extends instance_skel {
         if (this.config.host !== undefined && this.config.host !== ""){
             host = this.config.host;
         }
-        if (this.config.port !== undefined && this.config.port !== ""){
-            port = this.config.port;
-        }
-        this.system.emit('osc_send',host, port, node, arg)
+        this.system.emit('osc_send',host, 8010, node, arg)
     }
 
 }

@@ -30,6 +30,41 @@ exports.getPresets  = function() {
         });
     }
 
+    presets.push({
+        category: 'Global Snapshots',
+        label: 'Recall Next Snapshot',
+        bank: {
+            style: 'text',
+            text: 'Recall Next',
+            color: '16777215',
+            size: 'auto',
+            bgcolor: this.rgb(0, 0, 0)
+        },
+        actions: [{
+            action: 'genericcommand',
+            options: {
+                command: '/Command/GlobalSnapshots/RecallNextGlobalSnapshot'
+            }
+        }]
+    });
+
+    presets.push({
+        category: 'Global Snapshots',
+        label: 'Recall Previous Snapshot',
+        bank: {
+            style: 'text',
+            text: 'Recall Previous',
+            color: '16777215',
+            size: 'auto',
+            bgcolor: this.rgb(0, 0, 0)
+        },
+        actions: [{
+            action: 'genericcommand',
+            options: {
+                command: '/Command/GlobalSnapshots/RecallPreviousGlobalSnapshot'
+            }
+        }]
+    });
 
     for (i = 1; i < 25; i++) {
         presets.push({
@@ -181,6 +216,30 @@ exports.getPresets  = function() {
         }]
     });
 
+    presets.push({
+        category: 'Transport & Tempo',
+        label: 'Tap Tempo',
+        bank: {
+            style: 'text',
+            text: '$(LiveProfessor:tempo) ',
+            size: 'auto',
+            color: '16777215',
+            bgcolor: this.rgb(0, 0, 0)
+        },
+        actions: [{
+            action: 'genericcommand',
+            command:'/Command/Transport&Tempo/TempoTap'
+        }],
+        feedbacks: [
+            {
+                type: 'tempoflash',
+                options: {
+                    bg: this.rgb(16, 168, 62),
+                    fg: this.rgb(255, 255, 255)
+                }
+            }
+        ]
+    });
 
     return presets;
 }

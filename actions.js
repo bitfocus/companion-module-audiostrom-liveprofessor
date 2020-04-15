@@ -38,6 +38,8 @@ exports.getActions  = function() {
 		{ label: 'Chains - Add New Chain', id: '/Command/Chains/AddNewChain'},
 		{ label: 'Global Snapshots - Add New Global Snapshot', id: '/Command/GlobalSnapshots/AddNewGlobalSnapshot'},
 		{ label: 'Global Snapshots - Update Active Global Snapshot', id: '/Command/GlobalSnapshots/UpdateActiveGlobalSnapshot'},
+		{ label: 'Global Snapshots - Recall Next Snapshot', id: '/Command/GlobalSnapshots/RecallNextGlobalSnapshot'},
+		{ label: 'Global Snapshots - Recall Previous Snapshot', id: '/Command/GlobalSnapshots/RecallPreviousGlobalSnapshot'},
 		{ label: 'Controllers - Hardware Controllers Setup', id: '/Command/Controllers/HardwareControllersSetup'},
 		{ label: 'Controllers - Map Controllers', id: '/Command/Controllers/MapControllers'},
 		{ label: 'Controllers - Quick Assign', id: '/Command/Controllers/QuickAssign'},
