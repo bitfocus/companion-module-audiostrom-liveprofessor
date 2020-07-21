@@ -357,9 +357,9 @@ class instance extends instance_skel {
         states['ping']=false;
         states['tempoflash']=false;
         console.log("Send refresh")
-        this.sendOSC('/LiveProfessor/ViewSets/Refresh', [])
-        this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
-        this.sendOSC('/LiveProfessor/Init', [])
+        this.sendOSC('/ViewSets/Refresh', [])
+        this.sendOSC('/GlobalSnapshots/Refresh', [])
+        this.sendOSC('/Init', [])
     }
 
     updateConfig(config) {
@@ -462,7 +462,7 @@ class instance extends instance_skel {
                 this.connecting = false;
                 this.log('info',"Connected to LiveProfessor:" + hostAddress);
                 console.log('info',"Connected to LiveProfessor:" + hostAddress);
-                this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
+                this.sendOSC('/GlobalSnapshots/Refresh', [])
             });
 
             this.qSocket.on("message", (message) => {
@@ -486,14 +486,14 @@ class instance extends instance_skel {
 
         /* Cues */
 
-        if (address.match('LiveProfessor/CueLists/NextCue')) {
+        if (address.match('CueLists/NextCue')) {
             this.setVariable('NextCueName', args[0].value);
         }
-        else if (address.match('LiveProfessor/CueLists/ActiveCue')) {
+        else if (address.match('CueLists/ActiveCue')) {
             this.setVariable('ActiveCueName', args[0].value);
         }
 
-        else if (address.match('/LiveProfessor/GlobalSnapshots/Recalled')) {
+        else if (address.match('GlobalSnapshots/Recalled')) {
 
             states['currentGs']={'id':args[1].value, 'name':args[0].value};
             this.setVariable('GSname'+args[1].value+1, args[0].value);
@@ -503,38 +503,38 @@ class instance extends instance_skel {
 
         }
         /* Global Snapshots */
-        else if (address.match('/LiveProfessor/GlobalSnapshots/Name')) {
+        else if (address.match('GlobalSnapshots/Name')) {
 
             this.setVariable('GSname'+(args[1].value+1), args[0].value);
         }
-        else if (address.match('/LiveProfessor/GlobalSnapshots/Added')) {
+        else if (address.match('GlobalSnapshots/Added')) {
 
 
             this.setVariable('GSname'+(args[1].value+1), args[0].value);
         }
 
-        else if (address.match('/LiveProfessor/GlobalSnapshots/Removed')) {
+        else if (address.match('GlobalSnapshots/Removed')) {
 
             this.setVariable('GSname'+(args[1].value+1), "Snap "+args[1].value+1);
-            this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
+            this.sendOSC('GlobalSnapshots/Refresh', [])
         }
 
         else if (address.match('/LiveProfessor/GlobalSnapshots/Moved')) {
 
-            this.sendOSC('/LiveProfessor/GlobalSnapshots/Refresh', [])
+            this.sendOSC('/GlobalSnapshots/Refresh', [])
         }
         /* View Sets */
-        else if (address.match('/LiveProfessor/ViewSets/Recalled')) {
+        else if (address.match('/ViewSets/Recalled')) {
 
             states['currentViewSet']=args[0].value
             this.checkFeedbacks('viewsetrecalled')
 
         }
-        else if (address.match('/LiveProfessor/ViewSets/Changed')) {
+        else if (address.match('/ViewSets/Changed')) {
 
             this.sendOSC('/LiveProfessor/ViewSets/Refresh', [])
         }
-        else if (address.match('/LiveProfessor/ViewSets/Update')) {
+        else if (address.match('/ViewSets/Update')) {
 
             this.setVariable('ViewSetName'+(args[1].value+1), args[0].value);
 
