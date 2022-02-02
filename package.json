@@ -1,6 +1,6 @@
 {
   "name": "audiostrom-liveprofessor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "LiveProfessor OSC",
   "manufacturer": "Audioström",
   "product": "LiveProfessor",
@@ -13,10 +13,9 @@
     "LiveProfessor"
   ],
   "keywords": [
-  "Software",
-  "Sound"
-],
-
+    "Software",
+    "Sound"
+  ],
   "author": "audiostrom",
   "license": "ISC"
 }
