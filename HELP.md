@@ -1,7 +1,7 @@
 # Help for the LiveProfessor module
 
 This module is designed to be used with the Companion controller-type in LiveProfessor
-(Version > 2020.2)
+(Version >= 2022.1)
 
 #### Folowing commands are supported:
 

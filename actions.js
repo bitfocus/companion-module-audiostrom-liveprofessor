@@ -69,7 +69,7 @@ exports.getActions  = function() {
 		label: 'Generic Application Command',
 		options: [
 			{
-				label: 'number',
+				label: 'Command to tigger',
 				type: 'dropdown',
 				id: 'command',
 				default: '/Command/General/MIDIPanic',
