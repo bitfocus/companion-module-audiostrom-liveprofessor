@@ -151,21 +151,21 @@ exports.getActions = function (self) {
         name: 'Cue list: GO Next Cue',
         options: [],
         callback: async (event) => {
-            self.sendOSCCommand("/Command/CueLists/FireNextCue")
+            self.sendOscMessage("/Command/CueLists/FireNextCue")
         }
     }
     actions['FirePreviousCue'] = {
         name: 'Cue list: GO Previous Cue',
         options: [],
         callback: async (event) => {
-            self.sendOSCCommand("/Command/CueLists/FirePreviousCue")
+            self.sendOscMessage("/Command/CueLists/FirePreviousCue")
         }
     }
     actions['StepUp'] = {
         name: 'Cue list: Step Up',
         options: [],
         callback: async (event) => {
-            self.sendOSCCommand("/Command/CueLists/StepUp")
+            self.sendOscMessage("/Command/CueLists/StepUp")
         }
     }
 
@@ -173,21 +173,21 @@ exports.getActions = function (self) {
         name: 'Cue list: Step Down',
         options: [],
         callback: async (event) => {
-            self.sendOSCCommand("/Command/CueLists/StepDown")
+            self.sendOscMessage("/Command/CueLists/StepDown")
         }
     }
     actions['Gototop'] = {
         name: 'Cue list: Go To Top',
         options: [],
         callback: async (event) => {
-            self.sendOSCCommand("/Command/CueLists/Gototop")
+            self.sendOscMessage("/Command/CueLists/Gototop")
         }
     }
     actions['StopAllCues'] = {
         name: 'Cue list: Stop All Cues',
         options: [],
         callback: async (event) => {
-            self.sendOSCCommand("/Command/CueLists/StopAllCues")
+            self.sendOscMessage("/Command/CueLists/StopAllCues")
         }
     }
 
@@ -299,7 +299,7 @@ exports.getActions = function (self) {
             const nr = await self.parseVariablesInString(event.options.buttonNr)
             const path = '/LiveProfessor/GenericButtons/Button' + nr
 
-            sendOscMessage(path, [
+            self.sendOscMessage(path, [
                 {
                     type: 'f',
                     value: 1.0,

@@ -1,4 +1,4 @@
-const {InstanceBase, Regex, runEntrypoint, combineRgb} = require("@companion-module/base");
+const {InstanceBase, Regex, runEntrypoint} = require("@companion-module/base");
 
 //var presets = require('./presets')
 const UpgradeScripts = require('./upgrades')
@@ -9,7 +9,7 @@ const {SomeCompanionConfigField} = require("@companion-module/base/dist/module-a
 let states = {}
 var tempoTimer
 
-class LPinstance extends InstanceBase {
+class LiveProfessorInstance extends InstanceBase {
     constructor(internal) {
         super(internal)
     }
@@ -18,36 +18,30 @@ class LPinstance extends InstanceBase {
 
         this.config = config
 
-        if (!this.config.feedbackPort) {
-            this.config.feedbackPort = 8011
-        }
+        //Set default ports
+        if (!this.config.feedbackPort) this.config.feedbackPort = 8011
         if (!this.config.port) this.config.port = 8010
 
-
-        this.log('info', 'INIT LiveProfessor Module')
-
-        this.init_actions() // export actions
-
+        this.init_actions()
         this.init_feedbacks()
         this.init_variables()
-
+        this.updateStatus('ok')
 
     }
 
     // When module gets deleted
     async destroy() {
-        this.log('debug', 'LPinstance destroy')
+
     }
 
     //Called when the configuration changes
-    async configUpdated(config) {
+    async configUpdated(config ) {
 
-        //TODO: For some reason this is never called. No idea why
+        //TODO: For some reason this is never called. No idea why. Lets just init OSC in the init function..
         this.log("debug", "LP Module Config Change")
         this.config = config
-        this.updateStatus('ok')
-        this.init_osc();
 
+        this.init_osc();
 
     }
 
@@ -105,17 +99,14 @@ class LPinstance extends InstanceBase {
         this.setActionDefinitions(getActions(this));
     }
 
-
+    //Timer used to flash the tempo in the "tap-tempo" button
     tempoTimer() {
         states['tempoflash'] = !states['tempoflash']
         this.checkFeedbacks('tempoflash')
     }
 
 
-
-
     init_feedbacks() {
-
         this.setFeedbackDefinitions(getFeedbacks(this));
     }
 
@@ -157,11 +148,11 @@ class LPinstance extends InstanceBase {
     }
 
     init_osc() {
+    //Init OSC return from LiveProfessor to companion to update button states and variables.
         if (this.connecting) {
             this.log('info', 'Already connecting..')
             return
         }
-
 
         this.log('info', 'Connecting to LiveProfessor')
 
@@ -212,6 +203,7 @@ class LPinstance extends InstanceBase {
         })
     }
 
+    //Process OSC Message from LiveProfessor and update variables in Compoanion etc
     processMessage(message) {
 
         let address = message.address
@@ -279,5 +271,5 @@ class LPinstance extends InstanceBase {
 
 }
 
-runEntrypoint(LPinstance, UpgradeScripts)
+runEntrypoint(LiveProfessorInstance, UpgradeScripts)
 
