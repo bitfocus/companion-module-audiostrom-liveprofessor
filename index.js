@@ -1,6 +1,3 @@
-
-
-var osc=require("osc");
 const {InstanceBase, Regex, runEntrypoint, combineRgb} = require("@companion-module/base");
 
 //var presets = require('./presets')
@@ -17,24 +14,23 @@ class LPinstance extends InstanceBase {
         super(internal)
     }
 
-    async init(config , isFirstInit) {
+    async init(config, isFirstInit) {
 
         this.config = config
 
-        if (!this.config.feedbackPort){
+        if (!this.config.feedbackPort) {
             this.config.feedbackPort = 8011
         }
         if (!this.config.port) this.config.port = 8010
 
 
-      //  this.updateStatus('ok')
-        this.log('info','INIT LpModule')
+        this.log('info', 'INIT LiveProfessor Module')
 
         this.init_actions() // export actions
 
         this.init_feedbacks()
         this.init_variables()
-        this.updateStatus('ok')
+
 
     }
 
@@ -43,21 +39,20 @@ class LPinstance extends InstanceBase {
         this.log('debug', 'LPinstance destroy')
     }
 
+    //Called when the configuration changes
     async configUpdated(config) {
 
-        if ((config.host!=this.config.host) || (config.port!=this.config.port) || (config.feedbackPort!=this.config.feedbackPort))
-        {
-            this.config = config
-
-        }
-        log('info','Config updated')
-        this.init_osc();
+        //TODO: For some reason this is never called. No idea why
+        this.log("debug", "LP Module Config Change")
         this.config = config
+        this.updateStatus('ok')
+        this.init_osc();
+
+
     }
 
     // Return config fields for web config
-    getConfigFields()
-{
+    getConfigFields() {
 
         return [
             {
@@ -103,7 +98,7 @@ class LPinstance extends InstanceBase {
     }
 
     sendOscMessage = (path, args) => {
-      //  this.oscSend(this.config.host, this.config.port, path, args)
+        this.oscSend(this.config.host, this.config.port, path, args)
     }
 
     init_actions() {
@@ -111,211 +106,117 @@ class LPinstance extends InstanceBase {
     }
 
 
-
-      tempoTimer() {
-          states['tempoflash'] = !states['tempoflash']
-          this.checkFeedbacks('tempoflash')
-      }
-
-    /*  config_fields() {
-
-      }
-  */
+    tempoTimer() {
+        states['tempoflash'] = !states['tempoflash']
+        this.checkFeedbacks('tempoflash')
+    }
 
 
-      init_feedbacks() {
-
-          this.setFeedbackDefinitions(getFeedbacks(this));
-      }
-
-      //Seems to store some states
-      feedback(feedback) {
-          if (feedback.type === 'GenericButton') {
-              if (states['GenericButton' + feedback.options.buttonNr] == 1) {
-                  return {color: feedback.options.fg, bgcolor: feedback.options.bg}
-              }
-          }
-
-          if (feedback.type === 'snapshotrecalled') {
-              if (states['currentGs'].id === parseInt(feedback.options.snapshotnr) - 1) {
-                  return {color: feedback.options.fg, bgcolor: feedback.options.bg}
-              } else if (states['currentGs'].name === feedback.options.snapshotname) {
-                  return {color: feedback.options.fg, bgcolor: feedback.options.bg}
-              }
-          }
-
-          if (feedback.type === 'viewsetrecalled') {
-              if (states['currentViewSet'] === parseInt(feedback.options.viewset) - 1) {
-                  return {color: feedback.options.fg, bgcolor: feedback.options.bg}
-              }
-          }
-
-          if (feedback.type === 'ping') {
-              if (states['ping'] == true) {
-                  return {color: feedback.options.fg, bgcolor: feedback.options.bg}
-              }
-          }
-          if (feedback.type === 'tempoflash') {
-              if (states['tempoflash'] == true) {
-                  if (feedback.options) {
-                      return {color: feedback.options.fg, bgcolor: feedback.options.bg}
-                  }
-              }
-          }
-
-          return {}
-      }
-
-     /* destroy() {
-          this.status(this.STATUS_UNKNOWN, 'Disabled')
-          debug('destroy', this.id)
-      }*/
-
-     /* init() {
-          debug = this.debug
-          log = this.log
-          console.log('Init LiveProfessor')
-          if (!this.config.feedbackPort){
-              this.config.feedbackPort = 8011
-          }
-          if (!this.config.port) this.config.port = 8010
 
 
-          this.init_feedbacks()
-          this.init_variables()
-          this.status(this.STATE_OK)
-          this.init_presets()
-          this.init_osc()
-          states['currentGs'] = {id: -1, name: ''}
-          states['currentViewSet'] = -1
-          states['ping'] = false
-          states['tempoflash'] = false
+    init_feedbacks() {
 
-          this.sendOSC('/ViewSets/Refresh', [])
-          this.sendOSC('/GlobalSnapshots/Refresh', [])
-          this.sendOSC('/Init', [])
+        this.setFeedbackDefinitions(getFeedbacks(this));
+    }
 
-          //TODO Set default names for dynamic variables
-      }*/
+    //Seems to store some states
 
-      updateConfig(config) {
-          console.log("LP UPDATE config")
+    init_variables() {
+        var variables = []
 
-          if ((config.host!=this.config.host) || (config.port!=this.config.port) || (config.feedbackPort!=this.config.feedbackPort))
-          {
-              this.config = config
-             // this.init_osc();
-          }
+        variables.push({name: 'NextCueName', label: 'Next cue to fire'})
+        variables.push({name: 'ActiveCueName', label: 'Current cue to fire'})
+        variables.push({name: 'ActiveGlobalSnapshot', label: 'Current global snapshot'})
+        var i
+        for (i = 1; i < 100; i++) {
+            variables.push({name: 'GSname' + i, label: 'Global Snapshot Name ' + i})
+        }
 
-          this.config = config
+        for (i = 1; i < 24; i++) {
+            variables.push({name: 'GenericButtonName' + i, label: 'Button Name Name ' + i})
+        }
 
-      }
+        for (i = 1; i < 100; i++) {
+            variables.push({name: 'ViewSetName' + i, label: 'Name of View Set ' + i})
+        }
 
-      init_variables() {
-          var variables = []
+        this.setVariableDefinitions(variables)
 
-          variables.push({name: 'NextCueName', label: 'Next cue to fire'})
-          variables.push({name: 'ActiveCueName', label: 'Current cue to fire'})
-          variables.push({name: 'ActiveGlobalSnapshot', label: 'Current global snapshot'})
-          var i
-          for (i = 1; i < 100; i++) {
-              variables.push({name: 'GSname' + i, label: 'Global Snapshot Name ' + i})
-          }
+        for (i = 1; i < 100; i++) {
+            this.setVariableValues({['GSName' + i]: 'Snap ' + (i + 1)})
+        }
+        variables.push({name: 'tempo', label: 'Tempo'})
+    }
 
-          for (i = 1; i < 24; i++) {
-              variables.push({name: 'GenericButtonName' + i, label: 'Button Name Name ' + i})
-          }
+    connect() {
+        this.status(this.STATUS_UNKNOWN, 'Connecting')
+    }
 
-          for (i = 1; i < 100; i++) {
-              variables.push({name: 'ViewSetName' + i, label: 'Name of View Set ' + i})
-          }
+    init_presets() {
+        this.setPresetDefinitions(this.getPresets())
+    }
 
-          this.setVariableDefinitions(variables)
-
-          for (i = 1; i < 100; i++) {
-              this.setVariableValues({['GSName' + i]: 'Snap ' + (i + 1)})
-          }
-          variables.push({name: 'tempo', label: 'Tempo'})
-      }
-
-      connect() {
-          this.status(this.STATUS_UNKNOWN, 'Connecting')
-      }
-
-      init_presets() {
-          this.setPresetDefinitions(this.getPresets())
-      }
-
-       init_osc() {
-          if (this.connecting) {
-              this.log('info','Already connecting..')
-              return
-          }
-
-       /*   if (this.qSocket) {
-              this.qSocket.close()
-          }
+    init_osc() {
+        if (this.connecting) {
+            this.log('info', 'Already connecting..')
+            return
+        }
 
 
-          var hostAddress = '127.0.0.1'
-          if (this.config.host) hostAddress = this.config.host
+        this.log('info', 'Connecting to LiveProfessor')
 
-          if (!this.config.feedbackPort) this.config.feedbackPort = 8011
-          if (!this.config.port) this.config.port = 8010*/
-          this.log('info','Connecting to LiveProfessor')
+        this.oscUdp = new osc.UDPPort({
+            localAddress: '127.0.0.1',
+            localPort: this.config.feedbackPort,
+            address: this.config.host,
+            port: this.config.port,
+            metadata: true,
+        })
 
-          this.oscUdp = new osc.UDPPort({
-              localAddress: '127.0.0.1',
-              localPort: this.config.feedbackPort,
-              address: this.config.host,
-              port: this.config.port,
-              metadata: true,
-          })
+        this.connecting = true
+        this.log('info', 'opening')
+        this.oscUdp.open()
+        this.log('info', 'open')
 
-          this.connecting = true
-          this.log('info','opening')
-         this.oscUdp.open()
-          this.log('info','open')
+        this.oscUdp.on('error', (err) => {
 
-          this.oscUdp.on('error', (err) => {
+            this.log('error', 'Error: ' + err.message)
+            console.log('error', 'Error: ' + err.message)
+            this.connecting = false
+            this.status(this.STATUS_ERROR, "Can't connect to LiveProfessor")
+            if (err.code == 'ECONNREFUSED') {
+                this.qSocket.removeAllListeners()
+                console.log('error', 'ECONNREFUSED')
+            }
+        })
 
-              this.log('error', 'Error: ' + err.message)
-              console.log('error', 'Error: ' + err.message)
-              this.connecting = false
-              this.status(this.STATUS_ERROR, "Can't connect to LiveProfessor")
-              if (err.code == 'ECONNREFUSED') {
-                  this.qSocket.removeAllListeners()
-                  console.log('error', 'ECONNREFUSED')
-              }
-          })
+        this.oscUdp.on('close', () => {
+            console.log('debug', 'Connection to LiveProfessor Closed')
+            this.connecting = false
+            this.status(this.STATUS_WARNING, 'CLOSED')
+        })
 
-          this.oscUdp.on('close', () => {
-              console.log('debug', 'Connection to LiveProfessor Closed')
-              this.connecting = false
-              this.status(this.STATUS_WARNING, 'CLOSED')
-          })
+        this.oscUdp.on('ready', () => {
+            this.connecting = false
+            this.log('info', 'Connected to LiveProfessor:' + hostAddress)
+            console.log('info', 'Connected to LiveProfessor:' + hostAddress)
+            // this.sendOSC('/GlobalSnapshots/Refresh', [])
+            this.status(this.STATUS_OK, 'OK')
+        })
 
-          this.oscUdp.on('ready', () => {
-              this.connecting = false
-              this.log('info', 'Connected to LiveProfessor:' + hostAddress)
-              console.log('info', 'Connected to LiveProfessor:' + hostAddress)
-             // this.sendOSC('/GlobalSnapshots/Refresh', [])
-              this.status(this.STATUS_OK, 'OK')
-          })
+        this.oscUdp.on('message', (message) => {
+            this.processMessage(message)
+        })
 
-          this.oscUdp.on('message', (message) => {
-              this.processMessage(message)
-          })
-
-          this.oscUdp.on('data', (data) => {
-          })
-      }
+        this.oscUdp.on('data', (data) => {
+        })
+    }
 
     processMessage(message) {
 
         let address = message.address
         let args = message.args
-        this.log('info',"OSC input")
+        this.log('info', "OSC input")
 
 
         if (address.match('CueLists/NextCue')) {
@@ -374,7 +275,6 @@ class LPinstance extends InstanceBase {
         }
 
     }
-
 
 
 }

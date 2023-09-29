@@ -29,7 +29,7 @@ exports.getFeedbacks = function(self) {
             },
         ],
     }
-    feedbacks['snapshotrecalled'] = {
+   /* feedbacks['snapshotrecalled'] = {
         name: 'Global Snapshot Recalled',
         description: 'Change color when a Snapshot matches. Use number or name depending on action',
         options: [
@@ -60,7 +60,7 @@ exports.getFeedbacks = function(self) {
                 id: 'snapshotname',
             },
         ],
-    }
+    }*/
 
     feedbacks['viewsetrecalled'] = {
         name: 'View Set Recalled',
@@ -90,7 +90,7 @@ exports.getFeedbacks = function(self) {
         ],
     }
 
-    feedbacks['ping'] = {
+  /*  feedbacks['ping'] = {
         name: 'Ping',
         description: 'Change color when ping is received',
         options: [
@@ -107,7 +107,7 @@ exports.getFeedbacks = function(self) {
                 default: combineRgb(94, 255, 0),
             },
         ],
-    }
+    }*/
 
     feedbacks['tempoflash'] = {
         name: 'Tempo Tap Flash',
