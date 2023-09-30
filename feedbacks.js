@@ -1,7 +1,49 @@
 const {combineRgb} = require("@companion-module/base");
 exports.getFeedbacks = function(self) {
-    var feedbacks = {}
+    var feedbacks = {
+        'GenericButton':{
+            type: 'boolean',
+            name: 'Generic Button State',
+            description: 'Change colour depending on state of Generic Button',
+            defaultStyle: {
+                // Move the values from options to here
+                color: combineRgb(0, 0, 0),
+                bgcolor: combineRgb(255, 0, 0)
+            },
+            // remove the old style properties from options
+            options: [{
+                type: 'number',
+                label: 'Button Number',
+                id: 'buttonNr',
+                default: 1,
+                width: 64,
+                min: 1,
+                max: 24,
+            }],
+            callback: (feedback) => {
+                return self.liveprofessorState.buttons[feedback.options.buttonNr]
+            },
+        }/*,
+        'TempoFlash':{
+            type: 'boolean',
+            name: 'Tempo Tap Flash',
+            description: 'Change color when tempo is received',
+            defaultStyle: {
+                // Move the values from options to here
+                color: combineRgb(0, 0, 0),
+                bgcolor: combineRgb(255, 0, 0)
+            },
+            callback: (feedback) => {
+                return self.liveprofessorState.tempoflash
+            },
+        }*/
 
+
+    }
+
+
+
+    return feedbacks;
     feedbacks['GenericButton'] = {
         name: 'Generic Button',
         description: 'Change colour depending on state of Generic Button',

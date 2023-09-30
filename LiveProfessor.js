@@ -1,14 +1,15 @@
 const {InstanceBase, Regex, runEntrypoint} = require("@companion-module/base");
 
 //var presets = require('./presets')
+const osc = require("osc");
 const UpgradeScripts = require('./upgrades')
 const {getActions} = require("./actions");
 const {getFeedbacks} = require("./feedbacks");
 const {SomeCompanionConfigField} = require("@companion-module/base/dist/module-api/config");
 
-let states = {}
-var tempoTimer
 
+var tempoTimer
+let states={} //TODO remove
 class LiveProfessorInstance extends InstanceBase {
     constructor(internal) {
         super(internal)
@@ -17,7 +18,11 @@ class LiveProfessorInstance extends InstanceBase {
     async init(config, isFirstInit) {
 
         this.config = config
-
+        this.liveprofessorState = {
+            buttons:[],
+            tempoflash:false,
+            ping:false
+        }
         //Set default ports
         if (!this.config.feedbackPort) this.config.feedbackPort = 8011
         if (!this.config.port) this.config.port = 8010
@@ -25,6 +30,7 @@ class LiveProfessorInstance extends InstanceBase {
         this.init_actions()
         this.init_feedbacks()
         this.init_variables()
+        this.init_osc();
         this.updateStatus('ok')
 
     }
@@ -101,8 +107,8 @@ class LiveProfessorInstance extends InstanceBase {
 
     //Timer used to flash the tempo in the "tap-tempo" button
     tempoTimer() {
-        states['tempoflash'] = !states['tempoflash']
-        this.checkFeedbacks('tempoflash')
+      //  this.liveprofessorState.tempoflash = !this.liveprofessorState.tempoflash
+       // this.checkFeedbacks('TempoFlash')
     }
 
 
@@ -174,25 +180,26 @@ class LiveProfessorInstance extends InstanceBase {
             this.log('error', 'Error: ' + err.message)
             console.log('error', 'Error: ' + err.message)
             this.connecting = false
-            this.status(this.STATUS_ERROR, "Can't connect to LiveProfessor")
+            this.updateStatus(ConnectionFailure, "Can't connect to LiveProfessor")
             if (err.code == 'ECONNREFUSED') {
                 this.qSocket.removeAllListeners()
                 console.log('error', 'ECONNREFUSED')
             }
         })
 
-        this.oscUdp.on('close', () => {
+       this.oscUdp.on('close', () => {
             console.log('debug', 'Connection to LiveProfessor Closed')
             this.connecting = false
-            this.status(this.STATUS_WARNING, 'CLOSED')
+           this.updateStatus(ConnectionFailure,'closed')
+
         })
 
-        this.oscUdp.on('ready', () => {
+         this.oscUdp.on('ready', () => {
             this.connecting = false
-            this.log('info', 'Connected to LiveProfessor:' + hostAddress)
-            console.log('info', 'Connected to LiveProfessor:' + hostAddress)
+            this.log('info', 'Connected to LiveProfessor:' + this.config.host)
+            console.log('info', 'Connected to LiveProfessor:' + this.config.host)
             // this.sendOSC('/GlobalSnapshots/Refresh', [])
-            this.status(this.STATUS_OK, 'OK')
+             this.updateStatus('ok')
         })
 
         this.oscUdp.on('message', (message) => {
@@ -208,7 +215,7 @@ class LiveProfessorInstance extends InstanceBase {
 
         let address = message.address
         let args = message.args
-        this.log('info', "OSC input")
+        this.log('info', "OSC input "+address)
 
 
         if (address.match('CueLists/NextCue')) {
@@ -242,12 +249,12 @@ class LiveProfessorInstance extends InstanceBase {
         }
         if (address.match('/LiveProfessor/Ping')) {
             //Get button nr:
-            states['ping'] = !states['ping']
+            this.liveprofessorState.ping = !this.liveprofessorState.ping
             this.checkFeedbacks('ping')
         }
         if (address.match('/LiveProfessor/TempoChange')) {
             //Get button nr:
-            states['tempoflash'] = !states['tempoflash']
+            this.liveprofessorState.tempoflash = !this.liveprofessorState.tempoflash
             let tempo = args[0].value
             this.setVariableValues({'tempo': Math.round(tempo)})
             clearInterval(tempoTimer)
@@ -260,7 +267,7 @@ class LiveProfessorInstance extends InstanceBase {
         if (address.match('/LiveProfessor/GenericButton')) {
             //Get button nr:
             let nr = parseInt(address.substring(36))
-            states['GenericButton' + nr] = args[0].value
+            this.liveprofessorState.buttons[nr] = args[0].value
             this.checkFeedbacks('GenericButton')
         } else {
 
