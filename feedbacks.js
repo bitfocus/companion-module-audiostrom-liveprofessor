@@ -24,11 +24,11 @@ exports.getFeedbacks = function (self) {
                 return self.liveprofessorState.buttons[feedback.options.buttonNr]
             }
         },
-        'TempoFlash':{
+        'TempoFlash': {
             type: 'boolean',
             name: 'Tempo Tap Flash',
             description: 'Change color when tempo is received',
-            options:[],
+            options: [],
             defaultStyle: {
                 // Move the values from options to here
                 color: combineRgb(255, 255, 255),
@@ -38,7 +38,7 @@ exports.getFeedbacks = function (self) {
                 return self.liveprofessorState.tempoflash
             }
         },
-        'SnapshotRecalled':{
+        'SnapshotRecalled': {
             type: 'boolean',
             name: 'Global Snapshot Recalled',
             description: 'Change color when a Snapshot matches. Use number or name depending on action',
@@ -60,7 +60,7 @@ exports.getFeedbacks = function (self) {
                 }
             ],
             callback: (feedback) => {
-                return self.liveprofessorState.currentGlobalSnapshot.id==feedback.options.snapshotnr;
+                return self.liveprofessorState.currentGlobalSnapshot.id == feedback.options.snapshotnr;
             }
         },
         'ViewSetRecalled': {
@@ -82,37 +82,26 @@ exports.getFeedbacks = function (self) {
                     min: 1,
                     max: 9999,
                 },
-            ],callback: (feedback) => {
-                return self.liveprofessorState.currentViewSetId==feedback.options.viewset;
+            ], callback: (feedback) => {
+                return self.liveprofessorState.currentViewSetId == feedback.options.viewset;
             }
 
         },
-
-
-       /* 'Rotary': {
+        'QuickAssignMode': {
             type: 'boolean',
-            name: 'View Set Recalled',
-            description: 'Change color when view set matches number',
+            name: 'Quick Assign Mode',
+            description: 'Change color when Quick Assign is active',
             defaultStyle: {
                 // Move the values from options to here
                 color: combineRgb(0, 0, 0),
                 bgcolor: combineRgb(94, 194, 232)
             },
-            options: [
-                {
-                    label: 'View Set Number',
-                    type: 'number',
-                    id: 'viewset',
-                    width: 64,
-                    default: 1,
-                    min: 1,
-                    max: 9999,
-                },
-            ],callback: (feedback) => {
-                return self.liveprofessorState.currentViewSetId==feedback.options.viewset;
+            options: [], callback: (feedback) => {
+                return self.liveprofessorState.quickAssignMode;
             }
 
-        }*/
+        },
+
 
     }
 

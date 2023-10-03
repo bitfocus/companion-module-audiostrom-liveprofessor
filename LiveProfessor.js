@@ -25,7 +25,8 @@ class LiveProfessorInstance extends InstanceBase {
             ping:false,
             currentGlobalSnapshot:{id:0,name:""},
             rotaryValues:[0.0,0.0,0.0,0.0],
-            rotaryPush:[false,false,false,false]
+            rotaryPush:[false,false,false,false],
+            quickAssignMode:false
         }
         //Set default ports
         if (!this.config.feedbackPort) this.config.feedbackPort = 8011
@@ -129,18 +130,27 @@ class LiveProfessorInstance extends InstanceBase {
         this.setVariableDefinitions(getVariables())
 
         this.setVariableValues({
-            'GenericButtonName1': 'Button 1',
-            'GenericButtonName2': 'Button 2',
-            'GenericButtonName3': 'Button 3',
-            'GenericButtonName4': 'Button 4',
-            'GenericButtonName5': 'Button 5',
-            'GenericButtonName6': 'Button 6',
-            'GenericButtonName7': 'Button 7',
-            'GenericButtonName8': 'Button 8',
+            'GenericButton1Name': 'Button 1',
+            'GenericButton2Name': 'Button 2',
+            'GenericButton3Name': 'Button 3',
+            'GenericButton4Name': 'Button 4',
+            'GenericButton5Name': 'Button 5',
+            'GenericButton6Name': 'Button 6',
+            'GenericButton7Name': 'Button 7',
+            'GenericButton8Name': 'Button 8',
             'tempo': '120',
             'NextCueName': '',
             'ActiveCueName': '',
-            'ActiveGlobalSnapshot': ''
+            'ActiveGlobalSnapshot': '',
+            'TouchNTurnName':'',
+            'Rotary1Name': 'Rotary1',
+            'Rotary1Value': '0.0',
+            'Rotary2Name': 'Rotary2',
+            'Rotary2Value': '0.0',
+            'Rotary3Name': 'Rotary3',
+            'Rotary3Value': '0.0',
+            'Rotary4Name': 'Rotary4',
+            'Rotary4Value': '0.0',
         })
         let i;
         for (i = 1; i < 100; i++) {
@@ -296,9 +306,34 @@ class LiveProfessorInstance extends InstanceBase {
             let nr = parseInt(address.substring(17))
             this.liveprofessorState.rotaryValues[nr-1] = args[0].value
 
-            console.log(this.liveprofessorState.rotaryValues[nr-1])
             this.checkFeedbacks('Rotary')
         }
+        else if (address.match('/Command/General/TouchAndTurnChange')) {
+            //Get button nr:
+            let parameterName = args[0].value
+            this.setVariableValues({'TouchNTurnName':parameterName})
+        }
+        else if (address.match('/Companion/ControllerNames')) {
+
+            let variableName = args[0].value+'Name';
+            let parameterName = args[1].value
+
+            this.setVariableValues({[variableName]:parameterName})
+        }
+        else if (address.match('/Companion/ControllerValues')) {
+
+            let variableName = args[0].value+'Value';
+            let value = args[1].value
+
+            this.setVariableValues({[variableName]:value})
+        }
+        else if (address.match('/Controller/QuickAssign')) {
+
+            this.liveprofessorState.quickAssignMode = args[0].value
+            this.checkFeedbacks('QuickAssignMode')
+        }
+
+
 
     }
 

@@ -121,7 +121,7 @@ exports.getPresets = function () {
             category: 'Generic Buttons',
             label: 'Generic Button ' + i,
             style: {
-                text: 'Button ' + i,
+                text: '$(LiveProfessor:GenericButton' + i + 'Name)',
                 color: '16777215',
                 size: 'auto',
                 bgcolor: combineRgb(0, 0, 0)
@@ -188,7 +188,7 @@ exports.getPresets = function () {
     }
 
     presets.push({
-        type:'button',
+        type: 'button',
         category: 'Cues',
         label: 'Recall Cue by number',
         style: {
@@ -197,19 +197,19 @@ exports.getPresets = function () {
             size: 'auto',
             bgcolor: combineRgb(0, 0, 0)
         },
-        steps:[{
-            down:[{
+        steps: [{
+            down: [{
                 actionId: 'RecallCue',
                 options: {
                     cuenumber: "1"
                 }
             }],
-            up:[]
+            up: []
         }]
     });
 
     presets.push({
-        type:'button',
+        type: 'button',
         category: 'Cues',
         label: 'Go Next',
         style: {
@@ -218,16 +218,16 @@ exports.getPresets = function () {
             size: 'auto',
             bgcolor: combineRgb(102, 255, 51)
         },
-        steps:[{
-            down:[{
+        steps: [{
+            down: [{
                 actionId: 'FireNextCue',
             }],
-            up:[]
+            up: []
         }]
     });
 
     presets.push({
-        type:'button',
+        type: 'button',
         category: 'Cues',
         label: 'GO Previous Cue',
         style: {
@@ -236,16 +236,16 @@ exports.getPresets = function () {
             size: 'auto',
             bgcolor: combineRgb(0, 0, 0)
         },
-        steps:[{
-            down:[{
+        steps: [{
+            down: [{
                 actionId: 'FirePreviousCue',
             }],
-            up:[]
+            up: []
         }]
     });
 
     presets.push({
-        type:'button',
+        type: 'button',
         category: 'Cues',
         label: 'Cue list Step Up',
         style: {
@@ -254,16 +254,16 @@ exports.getPresets = function () {
             size: 'auto',
             bgcolor: combineRgb(0, 0, 0)
         },
-        steps:[{
-            down:[{
+        steps: [{
+            down: [{
                 actionId: 'StepUp',
             }],
-            up:[]
+            up: []
         }]
     });
 
     presets.push({
-        type:'button',
+        type: 'button',
         category: 'Cues',
         label: 'Cue list Step Down',
         style: {
@@ -272,16 +272,16 @@ exports.getPresets = function () {
             size: 'auto',
             bgcolor: combineRgb(0, 0, 0)
         },
-        steps:[{
-            down:[{
+        steps: [{
+            down: [{
                 actionId: 'StepDown',
             }],
-            up:[]
+            up: []
         }]
     });
 
     presets.push({
-        type:'button',
+        type: 'button',
         category: 'Cues',
         label: 'Stop All Cues',
         style: {
@@ -290,86 +290,32 @@ exports.getPresets = function () {
             size: 'auto',
             bgcolor: combineRgb(115, 0, 0)
         },
-        steps:[{
-            down:[{
+        steps: [{
+            down: [{
                 actionId: 'StopAllCues',
             }],
-            up:[]
+            up: []
         }]
     });
 
     presets.push({
-         type:'button',
-         category: 'Transport & Tempo',
-         label: 'Tap Tempo',
-         style: {
-             text: '$(LiveProfessor:tempo) ',
-             size: 'auto',
-             color: '16777215',
-             bgcolor: combineRgb(0, 0, 0)
-         },
-         steps:[{
-             down:[{
-                 actionId: 'GenericCommand',
-                 options: {
-                     command: '/Command/Transport&Tempo/TempoTap'
-                 }
-             }],
-             up:[]
-         }],
-         feedbacks: [
-             {
-                 feedbackId: 'TempoFlash',
-                 style: {
-                     // The style property is only valid for 'boolean' feedbacks, and defines the style change it will have.
-                     color: combineRgb(255, 255, 255),
-                     bgcolor: combineRgb(0, 153, 0)
-                 }
-             }
-         ]
-     });
-
-
-    //Presets for 4 rotatries
-    for (i = 1; i < 5; i++) {
-    presets.push({
-        type:'button',
-        category: 'Rotaries',
-        label: 'Rotary '+i,
-        options:{
-            rotaryActions:true
-        },
+        type: 'button',
+        category: 'Transport & Tempo',
+        label: 'Tap Tempo',
         style: {
-            text: 'Rotary '+i,
-            size: '18pt',
+            text: '$(LiveProfessor:tempo) ',
+            size: 'auto',
             color: '16777215',
             bgcolor: combineRgb(0, 0, 0)
         },
-        steps:[{
-            rotate_left:[{
-                actionId: 'GenericRotaryLeft',
+        steps: [{
+            down: [{
+                actionId: 'GenericCommand',
                 options: {
-                    rotaryId: i
+                    command: '/Command/Transport&Tempo/TempoTap'
                 }
             }],
-            rotate_right:[{
-                actionId: 'GenericRotaryRight',
-                options: {
-                    rotaryId: i
-                }
-            }],
-            down:[{
-                actionId: 'GenericRotaryPress',
-                options: {
-                    rotaryId: i
-                }
-            }],
-            up:[{
-                actionId: 'GenericRotaryRelease',
-                options: {
-                    rotaryId: i
-                }
-            }]
+            up: []
         }],
         feedbacks: [
             {
@@ -382,7 +328,101 @@ exports.getPresets = function () {
             }
         ]
     });
+
+
+    //Presets for 4 rotatries
+    for (i = 1; i < 5; i++) {
+        presets.push({
+            type: 'button',
+            category: 'Rotaries',
+            label: 'Rotary ' + i,
+            options: {
+                rotaryActions: true
+            },
+            style: {
+                text: 'Rotary ' + i,
+                size: '18pt',
+                color: '16777215',
+                bgcolor: combineRgb(0, 0, 0)
+            },
+            steps: [{
+                rotate_left: [{
+                    actionId: 'GenericRotaryLeft',
+                    options: {
+                        rotaryId: i
+                    }
+                }],
+                rotate_right: [{
+                    actionId: 'GenericRotaryRight',
+                    options: {
+                        rotaryId: i
+                    }
+                }],
+                down: [{
+                    actionId: 'GenericRotaryPress',
+                    options: {
+                        rotaryId: i
+                    }
+                }],
+                up: [{
+                    actionId: 'GenericRotaryRelease',
+                    options: {
+                        rotaryId: i
+                    }
+                }]
+            }],
+            feedbacks: []
+        });
+
+        //Labels, for use above the knobs
+        presets.push({
+            type: 'button',
+            category: 'Rotaries',
+            label: 'Rotary Label ' + i,
+
+            style: {
+                text: '$(LiveProfessor:Rotary' + i + 'Name)\\n$(LiveProfessor:Rotary' + i + 'Value)',
+                size: 'auto',
+                color: '16777215',
+                bgcolor: combineRgb(0, 0, 0)
+            },
+            steps: [],
+            feedbacks: []
+        });
+
+
     }
+
+    presets.push({
+        type: 'button',
+        category: 'Controllers',
+        label: 'Quick Assign',
+        style: {
+            text: 'Quick Assign',
+            size: 'auto',
+            color: '16777215',
+            bgcolor: combineRgb(0, 0, 0)
+        },
+        steps: [{
+            down: [{
+                actionId: 'GenericCommand',
+                options: {
+                    command: '/Command/Controllers/QuickAssign'
+                }
+            }],
+            up: []
+        }],
+        feedbacks: [
+            {
+                feedbackId: 'QuickAssignMode',
+                style: {
+                    // The style property is only valid for 'boolean' feedbacks, and defines the style change it will have.
+                    color: combineRgb(0, 0, 0),
+                    bgcolor: combineRgb(94, 194, 232)
+                }
+            }
+        ]
+    });
 
     return presets;
 }

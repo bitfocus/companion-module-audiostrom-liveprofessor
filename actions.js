@@ -34,9 +34,15 @@ exports.getActions = function (self) {
         {label: 'ViewModes - Zoom Out Wire View', id: '/Command/ViewModes/ZoomOutWireView'},
         {label: 'Chains - Add New Chain', id: '/Command/Chains/AddNewChain'},
         {label: 'Global Snapshots - Add New Global Snapshot', id: '/Command/GlobalSnapshots/AddNewGlobalSnapshot'},
-        {label: 'Global Snapshots - Update Active Global Snapshot', id: '/Command/GlobalSnapshots/UpdateActiveGlobalSnapshot'},
+        {
+            label: 'Global Snapshots - Update Active Global Snapshot',
+            id: '/Command/GlobalSnapshots/UpdateActiveGlobalSnapshot'
+        },
         {label: 'Global Snapshots - Recall Next Snapshot', id: '/Command/GlobalSnapshots/RecallNextGlobalSnapshot'},
-        {label: 'Global Snapshots - Recall Previous Snapshot', id: '/Command/GlobalSnapshots/RecallPreviousGlobalSnapshot'},
+        {
+            label: 'Global Snapshots - Recall Previous Snapshot',
+            id: '/Command/GlobalSnapshots/RecallPreviousGlobalSnapshot'
+        },
         {label: 'Controllers - Hardware Controllers Setup', id: '/Command/Controllers/HardwareControllersSetup'},
         {label: 'Controllers - Map Controllers', id: '/Command/Controllers/MapControllers'},
         {label: 'Controllers - Quick Assign', id: '/Command/Controllers/QuickAssign'},
@@ -63,40 +69,8 @@ exports.getActions = function (self) {
 
     let actions = {};
 
-    actions['GenericRotaryRight']={
-        name:'Generic Rotary Control-Rotate Right',
-        options: [
-            {
-                label: 'Rotary Nr',
-                type: 'number',
-                id: 'rotaryId',
-                width: 64,
-                default: 1,
-                min: 1,
-                max: 4,
-            }
-            ],
-        callback: async (event) => {
-
-            const id = Number(await self.parseVariablesInString(event.options.rotaryId))
-            const path = '/Companion/Rotary'+id
-
-            let incValue = 0.03;
-            if (self.liveprofessorState.rotaryPush[id-1]) incValue=0.005;
-
-            self.liveprofessorState.rotaryValues[id-1]+=incValue;
-            if (self.liveprofessorState.rotaryValues[id-1]>1) self.liveprofessorState.rotaryValues[id-1]=1;
-            const val = self.liveprofessorState.rotaryValues[id-1];
-            self.sendOscMessage(path, [
-                {
-                    type: 'f',
-                    value: val,
-                },
-            ])
-        },
-    }
-    actions['GenericRotaryLeft']={
-        name:'Generic Rotary Control-Rotate Left',
+    actions['GenericRotaryRight'] = {
+        name: 'Generic Rotary Control-Rotate Right',
         options: [
             {
                 label: 'Rotary Nr',
@@ -111,15 +85,48 @@ exports.getActions = function (self) {
         callback: async (event) => {
 
             const id = Number(await self.parseVariablesInString(event.options.rotaryId))
-            const path = '/Companion/Rotary'+id
+            const path = '/Companion/Rotary' + id
+
+            let incValue = 0.03;
+            if (self.liveprofessorState.rotaryPush[id - 1]) incValue = 0.005;
+
+            self.liveprofessorState.rotaryValues[id - 1] += incValue;
+            if (self.liveprofessorState.rotaryValues[id - 1] > 1) self.liveprofessorState.rotaryValues[id - 1] = 1;
+            const val = self.liveprofessorState.rotaryValues[id - 1];
+            self.sendOscMessage(path, [
+                {
+                    type: 'f',
+                    value: val,
+                },
+            ])
+        },
+    }
+    actions['GenericRotaryLeft'] = {
+        name: 'Generic Rotary Control-Rotate Left',
+        options: [
+            {
+                label: 'Rotary Nr',
+                type: 'number',
+                id: 'rotaryId',
+                width: 64,
+                default: 1,
+                min: 1,
+                max: 4,
+            }
+        ],
+        callback: async (event) => {
+
+            const id = Number(await self.parseVariablesInString(event.options.rotaryId))
+            const path = '/Companion/Rotary' + id
 
             //Increase precision when rotary is pushed in
             let stepValue = 0.03;
-            if (self.liveprofessorState.rotaryPush[id-1]) stepValue=0.005;
+            if (self.liveprofessorState.rotaryPush[id - 1]) stepValue = 0.005;
 
-            self.liveprofessorState.rotaryValues[id-1]-=stepValue;
-            if (self.liveprofessorState.rotaryValues[id-1]<0) self.liveprofessorState.rotaryValues[id-1]=0;
-            const val = self.liveprofessorState.rotaryValues[id-1];
+            self.liveprofessorState.rotaryValues[id - 1] -= stepValue;
+            if (self.liveprofessorState.rotaryValues[id - 1] < 0) self.liveprofessorState.rotaryValues[id - 1] = 0;
+            const val = self.liveprofessorState.rotaryValues[id - 1];
+
             self.sendOscMessage(path, [
                 {
                     type: 'f',
@@ -128,8 +135,8 @@ exports.getActions = function (self) {
             ])
         },
     }
-    actions['GenericRotaryPress']={
-        name:'Generic Rotary Control-Press',
+    actions['GenericRotaryPress'] = {
+        name: 'Generic Rotary Control-Press',
         options: [
             {
                 label: 'Rotary Nr',
@@ -144,10 +151,10 @@ exports.getActions = function (self) {
         callback: async (event) => {
 
             const id = Number(await self.parseVariablesInString(event.options.rotaryId))
-            const path = '/Companion/Rotary'+id+'/Press'
+            const path = '/Companion/RotaryButton' + id + '/Press'
 
             //This will increase precision of the rotaries when held down.
-            self.liveprofessorState.rotaryPush[id-1] = true;
+            self.liveprofessorState.rotaryPush[id - 1] = true;
 
             const val = 1;
             self.sendOscMessage(path, [
@@ -158,8 +165,8 @@ exports.getActions = function (self) {
             ])
         },
     }
-    actions['GenericRotaryRelease']={
-        name:'Generic Rotary Control-Release',
+    actions['GenericRotaryRelease'] = {
+        name: 'Generic Rotary Control-Release',
         options: [
             {
                 label: 'Rotary Nr',
@@ -174,10 +181,10 @@ exports.getActions = function (self) {
         callback: async (event) => {
 
             const id = Number(await self.parseVariablesInString(event.options.rotaryId))
-            const path = '/Companion/Rotary'+id+'/Press'
+            const path = '/Companion/RotaryButton' + id + '/Press'
 
             //This will increase precision of the rotaries when held down.
-            self.liveprofessorState.rotaryPush[id-1] = false;
+            self.liveprofessorState.rotaryPush[id - 1] = false;
 
             const val = 0;
             self.sendOscMessage(path, [
@@ -397,7 +404,7 @@ exports.getActions = function (self) {
             self.sendOscMessage(path, [
                 {
                     type: 'i',
-                    value: viewset-1,
+                    value: viewset - 1,
                 },
             ])
         }
