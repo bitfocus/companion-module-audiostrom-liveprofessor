@@ -5,7 +5,8 @@ const osc = require("osc");
 const UpgradeScripts = require('./upgrades')
 const {getActions} = require("./actions");
 const {getFeedbacks} = require("./feedbacks");
-const {SomeCompanionConfigField} = require("@companion-module/base/dist/module-api/config");
+const {getPresets} = require("./presets.js")
+const {getVariables} = require("./variables");
 
 
 var tempoTimer
@@ -21,7 +22,8 @@ class LiveProfessorInstance extends InstanceBase {
         this.liveprofessorState = {
             buttons:[],
             tempoflash:false,
-            ping:false
+            ping:false,
+            currentGlobalSnapshot:{id:0,name:""}
         }
         //Set default ports
         if (!this.config.feedbackPort) this.config.feedbackPort = 8011
@@ -31,6 +33,7 @@ class LiveProfessorInstance extends InstanceBase {
         this.init_feedbacks()
         this.init_variables()
         this.init_osc();
+        this.init_presets();
         this.updateStatus('ok')
 
     }
@@ -107,8 +110,8 @@ class LiveProfessorInstance extends InstanceBase {
 
     //Timer used to flash the tempo in the "tap-tempo" button
     tempoTimer() {
-      //  this.liveprofessorState.tempoflash = !this.liveprofessorState.tempoflash
-       // this.checkFeedbacks('TempoFlash')
+        this.liveprofessorState.tempoflash = !this.liveprofessorState.tempoflash
+        this.checkFeedbacks('TempoFlash')
     }
 
 
@@ -119,30 +122,29 @@ class LiveProfessorInstance extends InstanceBase {
     //Seems to store some states
 
     init_variables() {
-        var variables = []
 
-        variables.push({name: 'NextCueName', label: 'Next cue to fire'})
-        variables.push({name: 'ActiveCueName', label: 'Current cue to fire'})
-        variables.push({name: 'ActiveGlobalSnapshot', label: 'Current global snapshot'})
-        var i
+
+        this.setVariableDefinitions(getVariables())
+
+        this.setVariableValues({
+            'GenericButtonName1': 'Button 1',
+            'GenericButtonName2': 'Button 2',
+            'GenericButtonName3': 'Button 3',
+            'GenericButtonName4': 'Button 4',
+            'GenericButtonName5': 'Button 5',
+            'GenericButtonName6': 'Button 6',
+            'GenericButtonName7': 'Button 7',
+            'GenericButtonName8': 'Button 8',
+            'tempo': '120',
+            'NextCueName': '',
+            'ActiveCueName': '',
+            'ActiveGlobalSnapshot': ''
+        })
+        let i;
         for (i = 1; i < 100; i++) {
-            variables.push({name: 'GSname' + i, label: 'Global Snapshot Name ' + i})
+            this.setVariableValues({['GSname' + i]: 'Snap ' + (i)})
         }
 
-        for (i = 1; i < 24; i++) {
-            variables.push({name: 'GenericButtonName' + i, label: 'Button Name Name ' + i})
-        }
-
-        for (i = 1; i < 100; i++) {
-            variables.push({name: 'ViewSetName' + i, label: 'Name of View Set ' + i})
-        }
-
-        this.setVariableDefinitions(variables)
-
-        for (i = 1; i < 100; i++) {
-            this.setVariableValues({['GSName' + i]: 'Snap ' + (i + 1)})
-        }
-        variables.push({name: 'tempo', label: 'Tempo'})
     }
 
     connect() {
@@ -150,11 +152,11 @@ class LiveProfessorInstance extends InstanceBase {
     }
 
     init_presets() {
-        this.setPresetDefinitions(this.getPresets())
+        this.setPresetDefinitions(getPresets())
     }
 
     init_osc() {
-    //Init OSC return from LiveProfessor to companion to update button states and variables.
+    //Init. OSC to return state from LiveProfessor to companion to update button colors and variables.
         if (this.connecting) {
             this.log('info', 'Already connecting..')
             return
@@ -198,7 +200,9 @@ class LiveProfessorInstance extends InstanceBase {
             this.connecting = false
             this.log('info', 'Connected to LiveProfessor:' + this.config.host)
             console.log('info', 'Connected to LiveProfessor:' + this.config.host)
-            // this.sendOSC('/GlobalSnapshots/Refresh', [])
+            this.sendOscMessage('/init');
+             this.sendOscMessage('/refresh');
+
              this.updateStatus('ok')
         })
 
@@ -220,31 +224,48 @@ class LiveProfessorInstance extends InstanceBase {
 
         if (address.match('CueLists/NextCue')) {
             this.setVariableValues({'NextCueName': args[0].value})
-        } else if (address.match('CueLists/ActiveCue')) {
+        }
+        else if (address.match('CueLists/ActiveCue')) {
             this.setVariableValues({'ActiveCueName': args[0].value})
-        } else if (address.match('GlobalSnapshots/Recalled')) {
-            states['currentGs'] = {id: args[1].value, name: args[0].value}
-            this.setVariableValues({['GSname' + args[1].value + 1]: args[0].value})
-            this.setVariableValues({'ActiveGlobalSnapshot': args[0].value})
+        }
+        else if (address.match('GlobalSnapshots/Recalled')) {
+            this.liveprofessorState.currentGlobalSnapshot = {id: args[1].value+1, name: args[0].value}
 
-            this.checkFeedbacks('snapshotrecalled')
-        } else if (address.match('GlobalSnapshots/Name')) {
+            this.setVariableValues({
+                ['GSname'+(args[1].value+1)] : args[0].value,
+                'ActiveGlobalSnapshot': args[0].value
+            })
+            this.checkFeedbacks('SnapshotRecalled')
+        }
+        else if (address.match('GlobalSnapshots/Name')) {
             /* Global Snapshots */
             this.setVariableValues({['GSname' + (args[1].value + 1)]: args[0].value})
-        } else if (address.match('GlobalSnapshots/Added')) {
-            this.setVariableValues({['GSname' + (args[1].value + 1)]: args[0].value})
-        } else if (address.match('GlobalSnapshots/Removed')) {
+        }
+        else if (address.match('GlobalSnapshots/Added')) {
+
+            this.setVariableValues({
+                ['GSname'+(args[1].value+1)] : args[0].value,
+                'ActiveGlobalSnapshot': args[0].value
+            })
+            this.liveprofessorState.currentGlobalSnapshot = {id: args[1].value, name: args[0].value}
+            this.checkFeedbacks('SnapshotRecalled')
+        }
+        else if (address.match('GlobalSnapshots/Removed')) {
             this.setVariableValues({['GSname' + (args[1].value + 1)]: 'Snap ' + args[1].value + 1})
-            this.sendOSC('GlobalSnapshots/Refresh', [])
-        } else if (address.match('/LiveProfessor/GlobalSnapshots/Moved')) {
-            this.sendOSC('/GlobalSnapshots/Refresh', [])
-        } else if (address.match('/ViewSets/Recalled')) {
+            this.sendOscMessage('GlobalSnapshots/Refresh', [])
+        }
+        else if (address.match('/LiveProfessor/GlobalSnapshots/Moved')) {
+            this.sendOscMessage('/GlobalSnapshots/Refresh', [])
+        }
+        else if (address.match('/ViewSets/Recall')) {
             /* View Sets */
-            states['currentViewSet'] = args[0].value
-            this.checkFeedbacks('viewsetrecalled')
-        } else if (address.match('/ViewSets/Changed')) {
-            this.sendOSC('/LiveProfessor/ViewSets/Refresh', [])
-        } else if (address.match('/ViewSets/Update')) {
+            this.liveprofessorState.currentViewSetId = args[0].value+1
+            this.checkFeedbacks('ViewSetRecalled')
+        }
+        else if (address.match('/ViewSets/Changed')) {
+            this.sendOscMessage('/LiveProfessor/ViewSets/Refresh', [])
+        }
+        else if (address.match('/ViewSets/Update')) {
             this.setVariableValues({['ViewSetName' + (args[1].value + 1)]: args[0].value})
         }
         if (address.match('/LiveProfessor/Ping')) {
@@ -253,12 +274,11 @@ class LiveProfessorInstance extends InstanceBase {
             this.checkFeedbacks('ping')
         }
         if (address.match('/LiveProfessor/TempoChange')) {
-            //Get button nr:
-            this.liveprofessorState.tempoflash = !this.liveprofessorState.tempoflash
+
             let tempo = args[0].value
             this.setVariableValues({'tempo': Math.round(tempo)})
             clearInterval(tempoTimer)
-            var _this = this
+            const _this = this;
             tempoTimer = setInterval(function () {
                 _this.tempoTimer()
             }, 60000 / tempo / 2)

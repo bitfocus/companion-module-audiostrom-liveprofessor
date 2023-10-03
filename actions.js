@@ -64,7 +64,7 @@ exports.getActions = function (self) {
     let actions = {};
 
     //Generic Program Commands:
-    actions['genericcommand'] = {
+    actions['GenericCommand'] = {
 
         name: 'Generic Application Command',
         options: [
@@ -191,7 +191,7 @@ exports.getActions = function (self) {
         }
     }
 
-    actions['recallcue'] = {
+    actions['RecallCue'] = {
         name: 'Cue List: Recall cue #',
         options: [
             {
@@ -250,8 +250,8 @@ exports.getActions = function (self) {
         }
     }
 
-    actions['recallviewset'] = {
-        label: 'Recall View Set #',
+    actions['RecallViewSet'] = {
+        name: 'Recall View Set #',
         options: [
             {
                 label: 'number',
@@ -272,7 +272,7 @@ exports.getActions = function (self) {
             self.sendOscMessage(path, [
                 {
                     type: 'i',
-                    value: viewset,
+                    value: viewset-1,
                 },
             ])
         }

@@ -1,93 +1,150 @@
-exports.getPresets  = function() {
-    var presets = [];
+const {combineRgb} = require("@companion-module/base");
+exports.getPresets = function () {
+    let presets = [];
 
-    var i;
-    for (i = 1; i < 25; i++) {
-        presets.push({
-            category: 'Global Snapshots',
-            label: 'Global Snapshot '+i,
-            bank: {
-                style: 'text',
-                text: '$(LiveProfessor:GSname'+i+')',
-                size: 'pstSize',
-                color: '16777215',
-                bgcolor: this.rgb(0, 0, 0)
-            },
-            actions: [{
-                action: 'globalsnapshotnr',
-                options: {
-                    snapshot: i
-                }
-            }],
-            feedbacks: [
-                {
-                    type: 'snapshotrecalled',
-                    options: {
-                        snapshotnr: i,
-                    }
-                }
-            ]
-        });
-    }
+    let i;
 
     presets.push({
+        type: 'button',
         category: 'Global Snapshots',
         label: 'Recall Next Snapshot',
-        bank: {
-            style: 'text',
+        style: {
+
             text: 'Recall Next',
             color: '16777215',
             size: 'auto',
-            bgcolor: this.rgb(0, 0, 0)
+            bgcolor: combineRgb(0, 0, 0)
         },
-        actions: [{
-            action: 'genericcommand',
-            options: {
-                command: '/Command/GlobalSnapshots/RecallNextGlobalSnapshot'
-            }
-        }]
+        steps: [{
+            down: [{
+                actionId: 'GenericCommand',
+                options: {
+                    command: '/Command/GlobalSnapshots/RecallNextGlobalSnapshot'
+                }
+            }],
+            up: []
+        }
+        ],
+
     });
 
     presets.push({
+        type: 'button',
         category: 'Global Snapshots',
         label: 'Recall Previous Snapshot',
-        bank: {
-            style: 'text',
+        style: {
+
             text: 'Recall Previous',
             color: '16777215',
             size: 'auto',
-            bgcolor: this.rgb(0, 0, 0)
+            bgcolor: combineRgb(0, 0, 0)
         },
-        actions: [{
-            action: 'genericcommand',
-            options: {
-                command: '/Command/GlobalSnapshots/RecallPreviousGlobalSnapshot'
-            }
-        }]
+        steps: [{
+            down: [{
+                actionId: 'GenericCommand',
+                options: {
+                    command: '/Command/GlobalSnapshots/RecallPreviousGlobalSnapshot'
+                }
+            }],
+            up: []
+        }
+        ],
+
     });
 
+    presets.push({
+        type: 'button',
+        category: 'Global Snapshots',
+        label: 'Update Active Snapshot',
+        style: {
+
+            text: 'Update Snapshot',
+            color: '16777215',
+            size: 'auto',
+            bgcolor: combineRgb(0, 0, 0)
+        },
+        steps: [{
+            down: [{
+                actionId: 'GenericCommand',
+                options: {
+                    command: '/Command/GlobalSnapshots/UpdateActiveGlobalSnapshot'
+                }
+            }],
+            up: []
+        }
+        ],
+
+    });
+
+
     for (i = 1; i < 25; i++) {
         presets.push({
-            category: 'Generic Buttons',
-            label: 'Generic Button '+i,
-            bank: {
-                style: 'text',
-                text: 'Button '+i,
+            type: 'button',
+            category: 'Global Snapshots',
+            name: 'Global Snapshot ' + i,
+            style: {
+
+                text: '$(LiveProfessor:GSname' + i + ')',
+                size: 'pstSize',
                 color: '16777215',
-                size: 'auto',
-                bgcolor: this.rgb(0, 0, 0)
+                bgcolor: '0'
             },
-            actions: [{
-                action: 'GenericButton',
-                options: {
-                    buttonNr: i
-                }
+            steps: [{
+                down: [{
+                    actionId: 'globalsnapshotnr',
+                    options: {
+                        snapshot: i
+                    }
+                }],
+                up: []
             }],
             feedbacks: [
                 {
-                    type: 'GenericButton',
+                    feedbackId: 'SnapshotRecalled',
+                    options: {
+                        snapshotnr: i,
+                    },
+                    style: {
+                        // The style property is only valid for 'boolean' feedbacks, and defines the style change it will have.
+                        color: combineRgb(0, 0, 0),
+                        bgcolor: combineRgb(94, 194, 232),
+                    }
+                },
+            ]
+        });
+    }
+
+    //Generic Buttons:
+    for (i = 1; i < 25; i++) {
+        presets.push({
+            type: 'button',
+            category: 'Generic Buttons',
+            label: 'Generic Button ' + i,
+            style: {
+                text: 'Button ' + i,
+                color: '16777215',
+                size: 'auto',
+                bgcolor: combineRgb(0, 0, 0)
+            },
+            steps: [{
+                down: [{
+                    actionId: 'GenericButton',
+                    options: {
+                        buttonNr: i
+                    }
+                }],
+                up: []
+            }],
+            feedbacks: [
+                {
+                    feedbackId: 'GenericButton',
                     options: {
                         buttonNr: i,
+                    },
+                    style: {
+                        // The style property is only valid for 'boolean' feedbacks, and defines the style change it will have.
+                        color: combineRgb(0, 0, 0),
+                        bgcolor: combineRgb(94, 194, 232),
                     }
                 }
             ]
@@ -96,150 +153,183 @@ exports.getPresets  = function() {
 
     for (i = 1; i < 25; i++) {
         presets.push({
+            type: 'button',
             category: 'View Sets',
-            label: 'View Set '+i,
-            bank: {
-                style: 'text',
-                text: '$(LiveProfessor:ViewSetName'+i+')',
+            label: 'View Set ' + i,
+            style: {
+                text: '$(LiveProfessor:ViewSetName' + i + ')',
                 size: 'auto',
                 color: '16777215',
-                bgcolor: this.rgb(0, 0, 0)
+                bgcolor: combineRgb(0, 0, 0)
             },
-            actions: [{
-                action: 'recallviewset',
-                options: {
-                    viewset: i
-                }
+            steps: [{
+                down: [{
+                    actionId: 'RecallViewSet',
+                    options: {
+                        viewset: i
+                    }
+                }],
+                up: []
             }],
             feedbacks: [
                 {
-                    type: 'viewsetrecalled',
+                    feedbackId: 'ViewSetRecalled',
                     options: {
                         viewset: i,
+                    },
+                    style: {
+                        // The style property is only valid for 'boolean' feedbacks, and defines the style change it will have.
+                        color: combineRgb(0, 0, 0),
+                        bgcolor: combineRgb(94, 194, 232),
                     }
                 }
             ]
         });
     }
 
-
     presets.push({
+        type:'button',
         category: 'Cues',
         label: 'Recall Cue by number',
-        bank: {
-            style: 'text',
+        style: {
             text: 'Recall Cue',
             color: '16777215',
             size: 'auto',
-            bgcolor: this.rgb(0, 0, 0)
+            bgcolor: combineRgb(0, 0, 0)
         },
-        actions: [{
-            action: 'recallcue',
-            options: {
-                cuenumber: "1"
-            }
+        steps:[{
+            down:[{
+                actionId: 'RecallCue',
+                options: {
+                    cuenumber: "1"
+                }
+            }],
+            up:[]
         }]
     });
 
     presets.push({
+        type:'button',
         category: 'Cues',
         label: 'Go Next',
-        bank: {
-            style: 'text',
+        style: {
             text: 'GO',
-            size: '30',
-            color: '16777215',
-            bgcolor: this.rgb(102, 255, 51)
+            color: '0',
+            size: 'auto',
+            bgcolor: combineRgb(102, 255, 51)
         },
-        actions: [{
-            action: 'FireNextCue'
+        steps:[{
+            down:[{
+                actionId: 'FireNextCue',
+            }],
+            up:[]
         }]
     });
 
     presets.push({
+        type:'button',
         category: 'Cues',
         label: 'GO Previous Cue',
-        bank: {
-            style: 'text',
+        style: {
             text: 'GO Previous',
-            size: 'auto',
             color: '16777215',
-            bgcolor: this.rgb(0, 0, 0)
+            size: 'auto',
+            bgcolor: combineRgb(0, 0, 0)
         },
-        actions: [{
-            action: 'FirePreviousCue'
+        steps:[{
+            down:[{
+                actionId: 'FirePreviousCue',
+            }],
+            up:[]
         }]
     });
 
+
     presets.push({
+        type:'button',
         category: 'Cues',
         label: 'Cue list Step Up',
-        bank: {
-            style: 'text',
+        style: {
             text: 'Up',
-            size: 'auto',
             color: '16777215',
-            bgcolor: this.rgb(0, 0, 0)
+            size: 'auto',
+            bgcolor: combineRgb(0, 0, 0)
         },
-        actions: [{
-            action: 'StepUp'
+        steps:[{
+            down:[{
+                actionId: 'StepUp',
+            }],
+            up:[]
         }]
     });
 
     presets.push({
+        type:'button',
         category: 'Cues',
         label: 'Cue list Step Down',
-        bank: {
-            style: 'text',
+        style: {
             text: 'Down',
-            size: 'auto',
             color: '16777215',
-            bgcolor: this.rgb(0, 0, 0)
+            size: 'auto',
+            bgcolor: combineRgb(0, 0, 0)
         },
-        actions: [{
-            action: 'StepDown'
+        steps:[{
+            down:[{
+                actionId: 'StepDown',
+            }],
+            up:[]
         }]
     });
 
     presets.push({
+        type:'button',
         category: 'Cues',
         label: 'Stop All Cues',
-        bank: {
-            style: 'text',
+        style: {
             text: 'Stop',
-            size: 'auto',
             color: '16777215',
-            bgcolor: this.rgb(0, 0, 0)
+            size: 'auto',
+            bgcolor: combineRgb(115, 0, 0)
         },
-        actions: [{
-            action: 'StopAllCues'
+        steps:[{
+            down:[{
+                actionId: 'StopAllCues',
+            }],
+            up:[]
         }]
     });
 
-    presets.push({
-        category: 'Transport & Tempo',
-        label: 'Tap Tempo',
-        bank: {
-            style: 'text',
-            text: '$(LiveProfessor:tempo) ',
-            size: 'auto',
-            color: '16777215',
-            bgcolor: this.rgb(0, 0, 0)
-        },
-        actions: [{
-            action: 'genericcommand',
-            command:'/Command/Transport&Tempo/TempoTap'
-        }],
-        feedbacks: [
-            {
-                type: 'tempoflash',
-                options: {
-                    bg: this.rgb(16, 168, 62),
-                    fg: this.rgb(255, 255, 255)
-                }
-            }
-        ]
-    });
+
+     presets.push({
+         type:'button',
+         category: 'Transport & Tempo',
+         label: 'Tap Tempo',
+         style: {
+             text: '$(LiveProfessor:tempo) ',
+             size: 'auto',
+             color: '16777215',
+             bgcolor: combineRgb(0, 0, 0)
+         },
+         steps:[{
+             down:[{
+                 actionId: 'GenericCommand',
+                 options: {
+                     command: '/Command/Transport&Tempo/TempoTap'
+                 }
+             }],
+             up:[]
+         }],
+         feedbacks: [
+             {
+                 feedbackId: 'TempoFlash',
+                 style: {
+                     // The style property is only valid for 'boolean' feedbacks, and defines the style change it will have.
+                     color: combineRgb(255, 255, 255),
+                     bgcolor: combineRgb(0, 153, 0)
+                 }
+             }
+         ]
+     });
 
     return presets;
 }
