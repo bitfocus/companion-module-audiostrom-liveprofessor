@@ -244,7 +244,6 @@ exports.getPresets = function () {
         }]
     });
 
-
     presets.push({
         type:'button',
         category: 'Cues',
@@ -299,8 +298,7 @@ exports.getPresets = function () {
         }]
     });
 
-
-     presets.push({
+    presets.push({
          type:'button',
          category: 'Transport & Tempo',
          label: 'Tap Tempo',
@@ -330,6 +328,61 @@ exports.getPresets = function () {
              }
          ]
      });
+
+
+    //Presets for 4 rotatries
+    for (i = 1; i < 5; i++) {
+    presets.push({
+        type:'button',
+        category: 'Rotaries',
+        label: 'Rotary '+i,
+        options:{
+            rotaryActions:true
+        },
+        style: {
+            text: 'Rotary '+i,
+            size: '18pt',
+            color: '16777215',
+            bgcolor: combineRgb(0, 0, 0)
+        },
+        steps:[{
+            rotate_left:[{
+                actionId: 'GenericRotaryLeft',
+                options: {
+                    rotaryId: i
+                }
+            }],
+            rotate_right:[{
+                actionId: 'GenericRotaryRight',
+                options: {
+                    rotaryId: i
+                }
+            }],
+            down:[{
+                actionId: 'GenericRotaryPress',
+                options: {
+                    rotaryId: i
+                }
+            }],
+            up:[{
+                actionId: 'GenericRotaryRelease',
+                options: {
+                    rotaryId: i
+                }
+            }]
+        }],
+        feedbacks: [
+            {
+                feedbackId: 'TempoFlash',
+                style: {
+                    // The style property is only valid for 'boolean' feedbacks, and defines the style change it will have.
+                    color: combineRgb(255, 255, 255),
+                    bgcolor: combineRgb(0, 153, 0)
+                }
+            }
+        ]
+    });
+    }
 
     return presets;
 }

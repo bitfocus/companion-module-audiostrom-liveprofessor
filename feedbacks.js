@@ -86,8 +86,33 @@ exports.getFeedbacks = function (self) {
                 return self.liveprofessorState.currentViewSetId==feedback.options.viewset;
             }
 
-        }
+        },
 
+
+       /* 'Rotary': {
+            type: 'boolean',
+            name: 'View Set Recalled',
+            description: 'Change color when view set matches number',
+            defaultStyle: {
+                // Move the values from options to here
+                color: combineRgb(0, 0, 0),
+                bgcolor: combineRgb(94, 194, 232)
+            },
+            options: [
+                {
+                    label: 'View Set Number',
+                    type: 'number',
+                    id: 'viewset',
+                    width: 64,
+                    default: 1,
+                    min: 1,
+                    max: 9999,
+                },
+            ],callback: (feedback) => {
+                return self.liveprofessorState.currentViewSetId==feedback.options.viewset;
+            }
+
+        }*/
 
     }
 

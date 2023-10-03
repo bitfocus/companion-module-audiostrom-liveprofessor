@@ -63,6 +63,131 @@ exports.getActions = function (self) {
 
     let actions = {};
 
+    actions['GenericRotaryRight']={
+        name:'Generic Rotary Control-Rotate Right',
+        options: [
+            {
+                label: 'Rotary Nr',
+                type: 'number',
+                id: 'rotaryId',
+                width: 64,
+                default: 1,
+                min: 1,
+                max: 4,
+            }
+            ],
+        callback: async (event) => {
+
+            const id = Number(await self.parseVariablesInString(event.options.rotaryId))
+            const path = '/Companion/Rotary'+id
+
+            let incValue = 0.03;
+            if (self.liveprofessorState.rotaryPush[id-1]) incValue=0.005;
+
+            self.liveprofessorState.rotaryValues[id-1]+=incValue;
+            if (self.liveprofessorState.rotaryValues[id-1]>1) self.liveprofessorState.rotaryValues[id-1]=1;
+            const val = self.liveprofessorState.rotaryValues[id-1];
+            self.sendOscMessage(path, [
+                {
+                    type: 'f',
+                    value: val,
+                },
+            ])
+        },
+    }
+    actions['GenericRotaryLeft']={
+        name:'Generic Rotary Control-Rotate Left',
+        options: [
+            {
+                label: 'Rotary Nr',
+                type: 'number',
+                id: 'rotaryId',
+                width: 64,
+                default: 1,
+                min: 1,
+                max: 4,
+            }
+        ],
+        callback: async (event) => {
+
+            const id = Number(await self.parseVariablesInString(event.options.rotaryId))
+            const path = '/Companion/Rotary'+id
+
+            //Increase precision when rotary is pushed in
+            let stepValue = 0.03;
+            if (self.liveprofessorState.rotaryPush[id-1]) stepValue=0.005;
+
+            self.liveprofessorState.rotaryValues[id-1]-=stepValue;
+            if (self.liveprofessorState.rotaryValues[id-1]<0) self.liveprofessorState.rotaryValues[id-1]=0;
+            const val = self.liveprofessorState.rotaryValues[id-1];
+            self.sendOscMessage(path, [
+                {
+                    type: 'f',
+                    value: val,
+                },
+            ])
+        },
+    }
+    actions['GenericRotaryPress']={
+        name:'Generic Rotary Control-Press',
+        options: [
+            {
+                label: 'Rotary Nr',
+                type: 'number',
+                id: 'rotaryId',
+                width: 64,
+                default: 1,
+                min: 1,
+                max: 4,
+            }
+        ],
+        callback: async (event) => {
+
+            const id = Number(await self.parseVariablesInString(event.options.rotaryId))
+            const path = '/Companion/Rotary'+id+'/Press'
+
+            //This will increase precision of the rotaries when held down.
+            self.liveprofessorState.rotaryPush[id-1] = true;
+
+            const val = 1;
+            self.sendOscMessage(path, [
+                {
+                    type: 'f',
+                    value: val,
+                },
+            ])
+        },
+    }
+    actions['GenericRotaryRelease']={
+        name:'Generic Rotary Control-Release',
+        options: [
+            {
+                label: 'Rotary Nr',
+                type: 'number',
+                id: 'rotaryId',
+                width: 64,
+                default: 1,
+                min: 1,
+                max: 4,
+            }
+        ],
+        callback: async (event) => {
+
+            const id = Number(await self.parseVariablesInString(event.options.rotaryId))
+            const path = '/Companion/Rotary'+id+'/Press'
+
+            //This will increase precision of the rotaries when held down.
+            self.liveprofessorState.rotaryPush[id-1] = false;
+
+            const val = 0;
+            self.sendOscMessage(path, [
+                {
+                    type: 'f',
+                    value: val,
+                },
+            ])
+        },
+    }
     //Generic Program Commands:
     actions['GenericCommand'] = {
 
@@ -297,7 +422,7 @@ exports.getActions = function (self) {
         callback: async (event) => {
 
             const nr = await self.parseVariablesInString(event.options.buttonNr)
-            const path = '/LiveProfessor/GenericButtons/Button' + nr
+            const path = '/Companion/GenericButtons/Button' + nr
 
             self.sendOscMessage(path, [
                 {

@@ -23,7 +23,9 @@ class LiveProfessorInstance extends InstanceBase {
             buttons:[],
             tempoflash:false,
             ping:false,
-            currentGlobalSnapshot:{id:0,name:""}
+            currentGlobalSnapshot:{id:0,name:""},
+            rotaryValues:[0.0,0.0,0.0,0.0],
+            rotaryPush:[false,false,false,false]
         }
         //Set default ports
         if (!this.config.feedbackPort) this.config.feedbackPort = 8011
@@ -284,13 +286,18 @@ class LiveProfessorInstance extends InstanceBase {
             }, 60000 / tempo / 2)
         }
         /* Generic Buttons */
-        if (address.match('/LiveProfessor/GenericButton')) {
+        if (address.match('/Companion/GenericButton')) {
             //Get button nr:
-            let nr = parseInt(address.substring(36))
+            let nr = parseInt(address.substring(32))
             this.liveprofessorState.buttons[nr] = args[0].value
             this.checkFeedbacks('GenericButton')
-        } else {
+        } else if (address.match('/Companion/Rotary')) {
+            //Get button nr:
+            let nr = parseInt(address.substring(17))
+            this.liveprofessorState.rotaryValues[nr-1] = args[0].value
 
+            console.log(this.liveprofessorState.rotaryValues[nr-1])
+            this.checkFeedbacks('Rotary')
         }
 
     }
