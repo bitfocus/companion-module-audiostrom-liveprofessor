@@ -3,7 +3,7 @@
 	"name": "audiostrom-liveprofessor",
 	"shortname": "LiveProfessor",
 	"description": "LiveProfessor OSC",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-audiostrom-liveprofessor.git",
 	"bugs": "https://github.com/bitfocus/companion-module-audiostrom-liveprofessor/issues",
@@ -12,9 +12,7 @@
 			"name": "audiostrom"
 		}
 	],
-	"legacyIds": [
-		"LiveProfessor"
-	],
+	"legacyIds": ["LiveProfessor"],
 	"runtime": {
 		"type": "node18",
 		"api": "nodejs-ipc",
@@ -22,11 +20,6 @@
 		"entrypoint": "../LiveProfessor.js"
 	},
 	"manufacturer": "Audioström",
-	"products": [
-		"LiveProfessor"
-	],
-	"keywords": [
-		"Software",
-		"Sound"
-	]
+	"products": ["LiveProfessor"],
+	"keywords": ["Software", "Sound"]
 }
