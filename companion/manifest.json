@@ -9,7 +9,8 @@
 	"bugs": "https://github.com/bitfocus/companion-module-audiostrom-liveprofessor/issues",
 	"maintainers": [
 		{
-			"name": "audiostrom"
+			"name": "Nikolai Bergstrøm",
+			"email": "nikolai@audiostrom.com"
 		}
 	],
 	"legacyIds": ["LiveProfessor"],
