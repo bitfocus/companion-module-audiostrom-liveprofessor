@@ -12,8 +12,8 @@
 		"url": "git+https://github.com/bitfocus/companion-module-audiostrom-liveprofessor.git"
 	},
 	"dependencies": {
-		"osc": "^2.4.5",
-		"@companion-module/base": "~1.11.0"
+		"@companion-module/base": "~1.11.0",
+		"osc": "^2.4.5"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^2.1.0",
