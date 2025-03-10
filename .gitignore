@@ -6,3 +6,4 @@ package-lock.json
 .idea/vcs.xml
 /node_modules
 /.idea
+/.yarn
