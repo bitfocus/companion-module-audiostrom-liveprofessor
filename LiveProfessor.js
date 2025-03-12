@@ -159,7 +159,7 @@ class LiveProfessorInstance extends InstanceBase {
 		this.log('info', 'Connecting to LiveProfessor')
 
 		this.oscUdp = new osc.UDPPort({
-			localAddress: '127.0.0.1',
+			localAddress: '0.0.0.0',
 			localPort: this.config.feedbackPort,
 			address: this.config.host,
 			port: this.config.port,

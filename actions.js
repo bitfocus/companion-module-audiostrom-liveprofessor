@@ -78,7 +78,7 @@ exports.getActions = function (self) {
 				width: 64,
 				default: 1,
 				min: 1,
-				max: 4,
+				max: 99,
 			},
 		],
 		callback: async (event) => {
@@ -109,7 +109,7 @@ exports.getActions = function (self) {
 				width: 64,
 				default: 1,
 				min: 1,
-				max: 4,
+				max: 99,
 			},
 		],
 		callback: async (event) => {
@@ -142,7 +142,7 @@ exports.getActions = function (self) {
 				width: 64,
 				default: 1,
 				min: 1,
-				max: 4,
+				max: 99,
 			},
 		],
 		callback: async (event) => {
@@ -171,7 +171,7 @@ exports.getActions = function (self) {
 				width: 64,
 				default: 1,
 				min: 1,
-				max: 4,
+				max: 99,
 			},
 		],
 		callback: async (event) => {
