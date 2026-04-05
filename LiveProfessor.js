@@ -43,17 +43,14 @@ class LiveProfessorInstance extends InstanceBase {
 			this.oscUdp.close()
 			this.oscUdp = null
 		}
+		this.connecting = false
 		clearInterval(tempoTimer)
 	}
 
 	//Called when the configuration changes
 	async configUpdated(config) {
 		this.config = config
-		if (this.oscUdp) {
-			this.oscUdp.close()
-			this.oscUdp = null
-		}
-		this.connecting = false
+		await this.destroy()
 		this.init_osc()
 	}
 
