@@ -304,18 +304,6 @@ class LiveProfessorInstance extends InstanceBase {
 			this.checkFeedbacks('QuickAssignMode')
 		}
 	}
-
-	updateActions() {
-		return UpdateActions(this)
-	}
-
-	updateFeedbacks() {
-		return UpdateFeedbacks(this)
-	}
-
-	updateVariableDefinitions() {
-		return UpdateVariableDefinitions(this)
-	}
 }
 
 runEntrypoint(LiveProfessorInstance, UpgradeScripts)
