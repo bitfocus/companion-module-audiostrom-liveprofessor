@@ -16,6 +16,6 @@ It is recommended to use the available presets to take full advantage of the int
 - Tempo Tap, with feedback
 - Quick Assign,with feedback
 
-#### List of Application Commands
+## List of Application Commands
 
 Updated list of osc commands can be found [here](https://intercom.help/audiostrom/en/articles/8319137-list-of-osc-commands)
