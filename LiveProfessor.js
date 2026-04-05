@@ -179,17 +179,16 @@ class LiveProfessorInstance extends InstanceBase {
 
 		this.oscUdp.on('error', (err) => {
 			this.log('error', 'Error: ' + err.message)
-			console.log('error', 'Error: ' + err.message)
 			this.connecting = false
 			this.updateStatus(InstanceStatus.BadConfig, "Can't connect to LiveProfessor")
 			if (err.code == 'ECONNREFUSED') {
 				this.oscUdp.close()
-				console.log('error', 'ECONNREFUSED')
+				this.log('error', 'ECONNREFUSED')
 			}
 		})
 
 		this.oscUdp.on('close', () => {
-			console.log('debug', 'Connection to LiveProfessor Closed')
+			this.log('debug', 'Connection to LiveProfessor Closed')
 			this.connecting = false
 			this.updateStatus(InstanceStatus.ConnectionFailure, 'closed')
 		})
@@ -197,7 +196,6 @@ class LiveProfessorInstance extends InstanceBase {
 		this.oscUdp.on('ready', () => {
 			this.connecting = false
 			this.log('info', 'Connected to LiveProfessor:' + this.config.host)
-			console.log('info', 'Connected to LiveProfessor:' + this.config.host)
 			this.sendOscMessage('/init')
 			this.sendOscMessage('/refresh')
 
