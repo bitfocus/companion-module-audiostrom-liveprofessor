@@ -21,8 +21,8 @@ class LiveProfessorInstance extends InstanceBase {
 			tempoflash: false,
 			ping: false,
 			currentGlobalSnapshot: { id: 0, name: '' },
-			rotaryValues: [0.0, 0.0, 0.0, 0.0],
-			rotaryPush: [false, false, false, false],
+			rotaryValues: new Array(99).fill(0.0),
+			rotaryPush: new Array(99).fill(false),
 			quickAssignMode: false,
 		}
 		//Set default ports
