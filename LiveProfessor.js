@@ -179,7 +179,6 @@ class LiveProfessorInstance extends InstanceBase {
 			this.connecting = false
 			this.updateStatus(InstanceStatus.UnknownError, "Can't connect to LiveProfessor")
 			if (err.code == 'ECONNREFUSED') {
-				this.oscUdp.close()
 				this.log('error', 'ECONNREFUSED')
 			}
 		})
