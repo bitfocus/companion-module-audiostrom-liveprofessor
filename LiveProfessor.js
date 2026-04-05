@@ -48,10 +48,12 @@ class LiveProfessorInstance extends InstanceBase {
 
 	//Called when the configuration changes
 	async configUpdated(config) {
-		//TODO: For some reason this is never called. No idea why. Lets just init OSC in the init function..
-		this.log('debug', 'LP Module Config Change')
 		this.config = config
-
+		if (this.oscUdp) {
+			this.oscUdp.close()
+			this.oscUdp = null
+		}
+		this.connecting = false
 		this.init_osc()
 	}
 
