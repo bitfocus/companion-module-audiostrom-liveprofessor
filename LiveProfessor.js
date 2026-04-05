@@ -175,7 +175,7 @@ class LiveProfessorInstance extends InstanceBase {
 			this.connecting = false
 			this.updateStatus(InstanceStatus.BadConfig, "Can't connect to LiveProfessor")
 			if (err.code == 'ECONNREFUSED') {
-				this.qSocket.removeAllListeners()
+				this.oscUdp.close()
 				console.log('error', 'ECONNREFUSED')
 			}
 		})
