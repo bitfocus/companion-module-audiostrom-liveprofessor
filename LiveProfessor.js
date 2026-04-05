@@ -239,7 +239,7 @@ class LiveProfessorInstance extends InstanceBase {
 			this.checkFeedbacks('SnapshotRecalled')
 		} else if (address.match('GlobalSnapshots/Removed')) {
 			this.setVariableValues({ [`GSname${args[1].value + 1}`]: `Snap ${args[1].value + 1}` })
-			this.sendOscMessage('GlobalSnapshots/Refresh', [])
+			this.sendOscMessage('/GlobalSnapshots/Refresh', [])
 		} else if (address.match('/LiveProfessor/GlobalSnapshots/Moved')) {
 			this.sendOscMessage('/GlobalSnapshots/Refresh', [])
 		} else if (address.match('/ViewSets/Recall')) {
