@@ -183,7 +183,7 @@ class LiveProfessorInstance extends InstanceBase {
 		this.oscUdp.on('close', () => {
 			console.log('debug', 'Connection to LiveProfessor Closed')
 			this.connecting = false
-			this.updateStatus(ConnectionFailure, 'closed')
+			this.updateStatus(InstanceStatus.ConnectionFailure, 'closed')
 		})
 
 		this.oscUdp.on('ready', () => {
