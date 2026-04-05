@@ -1,4 +1,4 @@
-const { InstanceBase, Regex, runEntrypoint } = require('@companion-module/base')
+const { InstanceBase, InstanceStatus, Regex, runEntrypoint } = require('@companion-module/base')
 
 //var presets = require('./presets')
 const osc = require('osc')
@@ -173,7 +173,7 @@ class LiveProfessorInstance extends InstanceBase {
 			this.log('error', 'Error: ' + err.message)
 			console.log('error', 'Error: ' + err.message)
 			this.connecting = false
-			this.updateStatus(BadConfig, "Can't connect to LiveProfessor")
+			this.updateStatus(InstanceStatus.BadConfig, "Can't connect to LiveProfessor")
 			if (err.code == 'ECONNREFUSED') {
 				this.qSocket.removeAllListeners()
 				console.log('error', 'ECONNREFUSED')
