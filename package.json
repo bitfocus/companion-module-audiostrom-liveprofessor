@@ -1,7 +1,7 @@
 {
 	"name": "audiostrom-liveprofessor",
 	"version": "2.1.2",
-	"main": "LiveProfessor.js",
+	"main": "src/LiveProfessor.js",
 	"scripts": {
 		"format": "prettier -w .",
 		"package": "companion-module-build"

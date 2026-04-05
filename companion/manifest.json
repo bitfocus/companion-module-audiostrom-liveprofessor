@@ -18,7 +18,7 @@
 		"type": "node18",
 		"api": "nodejs-ipc",
 		"apiVersion": "1.0.0",
-		"entrypoint": "../LiveProfessor.js"
+		"entrypoint": "../src/LiveProfessor.js"
 	},
 	"manufacturer": "Audioström",
 	"products": ["LiveProfessor"],
