@@ -3,7 +3,7 @@
 	"name": "audiostrom-liveprofessor",
 	"shortname": "LiveProfessor",
 	"description": "LiveProfessor OSC",
-	"version": "2.0.1",
+	"version": "0.0.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-audiostrom-liveprofessor.git",
 	"bugs": "https://github.com/bitfocus/companion-module-audiostrom-liveprofessor/issues",
