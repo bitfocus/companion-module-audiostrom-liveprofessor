@@ -38,7 +38,13 @@ class LiveProfessorInstance extends InstanceBase {
 	}
 
 	// When module gets deleted
-	async destroy() {}
+	async destroy() {
+		if (this.oscUdp) {
+			this.oscUdp.close()
+			this.oscUdp = null
+		}
+		clearInterval(tempoTimer)
+	}
 
 	//Called when the configuration changes
 	async configUpdated(config) {
