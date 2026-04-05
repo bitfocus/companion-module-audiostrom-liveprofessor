@@ -11,6 +11,10 @@
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-audiostrom-liveprofessor.git"
 	},
+	"engines": {
+		"node": "^22.20",
+		"yarn": "^4"
+	},
 	"dependencies": {
 		"@companion-module/base": "~1.11.2",
 		"osc": "^2.4.5"
