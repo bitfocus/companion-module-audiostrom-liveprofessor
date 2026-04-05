@@ -4,7 +4,7 @@ This module is designed to be used with the Companion controller-type in LivePro
 (Version >= 2023.0.8)
 It is recommended to use the available presets to take full advantage of the integration
 
-#### Folowing commands are supported:
+## Folowing commands are supported
 
 - Generic Application Command (Like keyboard shortcuts)
 - Cue List Control
@@ -18,4 +18,4 @@ It is recommended to use the available presets to take full advantage of the int
 
 #### List of Application Commands
 
-Updated list of osc commands can be found <a href="https://intercom.help/audiostrom/en/articles/8319137-list-of-osc-commands">here</a>
+Updated list of osc commands can be found [here](https://intercom.help/audiostrom/en/articles/8319137-list-of-osc-commands)
