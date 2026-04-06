@@ -1,7 +1,7 @@
 {
 	"name": "audiostrom-liveprofessor",
-	"version": "2.1.0",
-	"main": "LiveProfessor.js",
+	"version": "2.1.2",
+	"main": "src/LiveProfessor.js",
 	"scripts": {
 		"format": "prettier -w .",
 		"package": "companion-module-build"
@@ -10,6 +10,10 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-audiostrom-liveprofessor.git"
+	},
+	"engines": {
+		"node": "^22.20",
+		"yarn": "^4"
 	},
 	"dependencies": {
 		"@companion-module/base": "~1.11.2",

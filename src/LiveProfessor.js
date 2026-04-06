@@ -1,4 +1,4 @@
-const { InstanceBase, Regex, runEntrypoint } = require('@companion-module/base')
+const { InstanceBase, InstanceStatus, Regex, runEntrypoint } = require('@companion-module/base')
 
 //var presets = require('./presets')
 const osc = require('osc')
@@ -21,8 +21,8 @@ class LiveProfessorInstance extends InstanceBase {
 			tempoflash: false,
 			ping: false,
 			currentGlobalSnapshot: { id: 0, name: '' },
-			rotaryValues: [0.0, 0.0, 0.0, 0.0],
-			rotaryPush: [false, false, false, false],
+			rotaryValues: new Array(99).fill(0.0),
+			rotaryPush: new Array(99).fill(false),
 			quickAssignMode: false,
 		}
 		//Set default ports
@@ -34,18 +34,23 @@ class LiveProfessorInstance extends InstanceBase {
 		this.init_variables()
 		this.init_osc()
 		this.init_presets()
-		this.updateStatus('ok')
+		this.updateStatus(InstanceStatus.Ok)
 	}
 
 	// When module gets deleted
-	async destroy() {}
+	async destroy() {
+		if (this.oscUdp) {
+			this.oscUdp.close()
+			this.oscUdp = null
+		}
+		this.connecting = false
+		clearInterval(tempoTimer)
+	}
 
 	//Called when the configuration changes
 	async configUpdated(config) {
-		//TODO: For some reason this is never called. No idea why. Lets just init OSC in the init function..
-		this.log('debug', 'LP Module Config Change')
 		this.config = config
-
+		await this.destroy()
 		this.init_osc()
 	}
 
@@ -137,7 +142,7 @@ class LiveProfessorInstance extends InstanceBase {
 		})
 		let i
 		for (i = 1; i < 100; i++) {
-			this.setVariableValues({ ['GSname' + i]: 'Snap ' + i })
+			this.setVariableValues({ [`GSname${i}`]: `Snap ${i}` })
 		}
 	}
 
@@ -170,30 +175,27 @@ class LiveProfessorInstance extends InstanceBase {
 		this.log('info', 'opening')
 
 		this.oscUdp.on('error', (err) => {
-			this.log('error', 'Error: ' + err.message)
-			console.log('error', 'Error: ' + err.message)
+			this.log('error', `Error: ${err.message}`)
 			this.connecting = false
-			this.updateStatus(BadConfig, "Can't connect to LiveProfessor")
+			this.updateStatus(InstanceStatus.UnknownError, "Can't connect to LiveProfessor")
 			if (err.code == 'ECONNREFUSED') {
-				this.qSocket.removeAllListeners()
-				console.log('error', 'ECONNREFUSED')
+				this.log('error', 'ECONNREFUSED')
 			}
 		})
 
 		this.oscUdp.on('close', () => {
-			console.log('debug', 'Connection to LiveProfessor Closed')
+			this.log('debug', 'Connection to LiveProfessor Closed')
 			this.connecting = false
-			this.updateStatus(ConnectionFailure, 'closed')
+			this.updateStatus(InstanceStatus.ConnectionFailure, 'closed')
 		})
 
 		this.oscUdp.on('ready', () => {
 			this.connecting = false
-			this.log('info', 'Connected to LiveProfessor:' + this.config.host)
-			console.log('info', 'Connected to LiveProfessor:' + this.config.host)
+			this.log('info', `Connected to LiveProfessor: ${this.config.host}`)
 			this.sendOscMessage('/init')
 			this.sendOscMessage('/refresh')
 
-			this.updateStatus('ok')
+			this.updateStatus(InstanceStatus.Ok)
 		})
 
 		this.oscUdp.on('message', (message) => {
@@ -210,7 +212,7 @@ class LiveProfessorInstance extends InstanceBase {
 	processMessage(message) {
 		let address = message.address
 		let args = message.args
-		this.log('info', 'OSC input ' + address)
+		this.log('info', `OSC input ${address}`)
 
 		if (address.match('CueLists/NextCue')) {
 			this.setVariableValues({ NextCueName: args[0].value })
@@ -220,23 +222,23 @@ class LiveProfessorInstance extends InstanceBase {
 			this.liveprofessorState.currentGlobalSnapshot = { id: args[1].value + 1, name: args[0].value }
 
 			this.setVariableValues({
-				['GSname' + (args[1].value + 1)]: args[0].value,
+				[`GSname${args[1].value + 1}`]: args[0].value,
 				ActiveGlobalSnapshot: args[0].value,
 			})
 			this.checkFeedbacks('SnapshotRecalled')
 		} else if (address.match('GlobalSnapshots/Name')) {
 			/* Global Snapshots */
-			this.setVariableValues({ ['GSname' + (args[1].value + 1)]: args[0].value })
+			this.setVariableValues({ [`GSname${args[1].value + 1}`]: args[0].value })
 		} else if (address.match('GlobalSnapshots/Added')) {
 			this.setVariableValues({
-				['GSname' + (args[1].value + 1)]: args[0].value,
+				[`GSname${args[1].value + 1}`]: args[0].value,
 				ActiveGlobalSnapshot: args[0].value,
 			})
 			this.liveprofessorState.currentGlobalSnapshot = { id: args[1].value, name: args[0].value }
 			this.checkFeedbacks('SnapshotRecalled')
 		} else if (address.match('GlobalSnapshots/Removed')) {
-			this.setVariableValues({ ['GSname' + (args[1].value + 1)]: 'Snap ' + args[1].value + 1 })
-			this.sendOscMessage('GlobalSnapshots/Refresh', [])
+			this.setVariableValues({ [`GSname${args[1].value + 1}`]: `Snap ${args[1].value + 1}` })
+			this.sendOscMessage('/GlobalSnapshots/Refresh', [])
 		} else if (address.match('/LiveProfessor/GlobalSnapshots/Moved')) {
 			this.sendOscMessage('/GlobalSnapshots/Refresh', [])
 		} else if (address.match('/ViewSets/Recall')) {
@@ -246,7 +248,7 @@ class LiveProfessorInstance extends InstanceBase {
 		} else if (address.match('/ViewSets/Changed')) {
 			this.sendOscMessage('/LiveProfessor/ViewSets/Refresh', [])
 		} else if (address.match('/ViewSets/Update')) {
-			this.setVariableValues({ ['ViewSetName' + (args[1].value + 1)]: args[0].value })
+			this.setVariableValues({ [`ViewSetName${args[1].value + 1}`]: args[0].value })
 		}
 		if (address.match('/LiveProfessor/Ping')) {
 			//Get button nr:
@@ -282,12 +284,12 @@ class LiveProfessorInstance extends InstanceBase {
 			let parameterName = args[0].value
 			this.setVariableValues({ TouchNTurnName: parameterName })
 		} else if (address.match('/Companion/ControllerNames')) {
-			let variableName = args[0].value + 'Name'
+			let variableName = `${args[0].value}Name`
 			let parameterName = args[1].value
 
 			this.setVariableValues({ [variableName]: parameterName })
 		} else if (address.match('/Companion/ControllerValues')) {
-			let variableName = args[0].value + 'Value'
+			let variableName = `${args[0].value}Value`
 			let value = args[1].value
 
 			this.setVariableValues({ [variableName]: value })
@@ -295,18 +297,6 @@ class LiveProfessorInstance extends InstanceBase {
 			this.liveprofessorState.quickAssignMode = args[0].value
 			this.checkFeedbacks('QuickAssignMode')
 		}
-	}
-
-	updateActions() {
-		return UpdateActions(this)
-	}
-
-	updateFeedbacks() {
-		return UpdateFeedbacks(this)
-	}
-
-	updateVariableDefinitions() {
-		return UpdateVariableDefinitions(this)
 	}
 }
 
