@@ -65,11 +65,11 @@ function buildHorseshoePath(width, height) {
 	const leftX = width * 0.06
 	const rightX = width * 0.94
 	const centerX = width / 2
-	const archCenterY = height * 0.3
+	const archCenterY = height * 0.32
 	const archRadiusX = (rightX - leftX) / 2
-	const archRadiusY = height * 0.25
-	const legBottomY = height * 0.94
-	const legSteps = Math.max(12, Math.round(height * 0.65))
+	const archRadiusY = height * 0.23
+	const legBottomY = height * 0.9
+	const legSteps = Math.max(12, Math.round(height * 0.6))
 	const archSteps = Math.max(32, Math.round(width * 1.1))
 	const points = []
 
