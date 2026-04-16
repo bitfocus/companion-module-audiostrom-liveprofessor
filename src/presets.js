@@ -1,4 +1,5 @@
 const { combineRgb } = require('@companion-module/base')
+const { ROTARY_COUNT } = require('./constants')
 exports.getPresets = function () {
 	let presets = []
 
@@ -370,8 +371,8 @@ exports.getPresets = function () {
 		],
 	})
 
-	//Presets for 4 rotatries
-	for (i = 1; i < 5; i++) {
+	//Presets for generic rotaries
+	for (i = 1; i <= ROTARY_COUNT; i++) {
 		presets.push({
 			type: 'button',
 			category: 'Rotaries',

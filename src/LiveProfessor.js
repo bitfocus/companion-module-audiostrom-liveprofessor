@@ -7,6 +7,8 @@ const { getActions } = require('./actions')
 const { getFeedbacks } = require('./feedbacks')
 const { getPresets } = require('./presets.js')
 const { getVariables } = require('./variables')
+const { ROTARY_COUNT } = require('./constants')
+const { getControllerVariableName } = require('./controllerVariables')
 
 var tempoTimer
 class LiveProfessorInstance extends InstanceBase {
@@ -21,8 +23,8 @@ class LiveProfessorInstance extends InstanceBase {
 			tempoflash: false,
 			ping: false,
 			currentGlobalSnapshot: { id: 0, name: '' },
-			rotaryValues: new Array(99).fill(0.0),
-			rotaryPush: new Array(99).fill(false),
+			rotaryValues: new Array(ROTARY_COUNT).fill(0.0),
+			rotaryPush: new Array(ROTARY_COUNT).fill(false),
 			quickAssignMode: false,
 		}
 		//Set default ports
@@ -117,7 +119,7 @@ class LiveProfessorInstance extends InstanceBase {
 	init_variables() {
 		this.setVariableDefinitions(getVariables())
 
-		this.setVariableValues({
+		const variableValues = {
 			GenericButton1Name: 'Button 1',
 			GenericButton2Name: 'Button 2',
 			GenericButton3Name: 'Button 3',
@@ -131,16 +133,13 @@ class LiveProfessorInstance extends InstanceBase {
 			ActiveCueName: '',
 			ActiveGlobalSnapshot: '',
 			TouchNTurnName: '',
-			Rotary1Name: 'Rotary1',
-			Rotary1Value: '0.0',
-			Rotary2Name: 'Rotary2',
-			Rotary2Value: '0.0',
-			Rotary3Name: 'Rotary3',
-			Rotary3Value: '0.0',
-			Rotary4Name: 'Rotary4',
-			Rotary4Value: '0.0',
-		})
+		}
 		let i
+		for (i = 1; i <= ROTARY_COUNT; i++) {
+			variableValues[`Rotary${i}Name`] = `Rotary${i}`
+			variableValues[`Rotary${i}Value`] = '0.0'
+		}
+		this.setVariableValues(variableValues)
 		for (i = 1; i < 100; i++) {
 			this.setVariableValues({ [`GSname${i}`]: `Snap ${i}` })
 		}
@@ -284,15 +283,15 @@ class LiveProfessorInstance extends InstanceBase {
 			let parameterName = args[0].value
 			this.setVariableValues({ TouchNTurnName: parameterName })
 		} else if (address.match('/Companion/ControllerNames')) {
-			let variableName = `${args[0].value}Name`
+			let variableName = getControllerVariableName(args[0].value, 'Name')
 			let parameterName = args[1].value
 
-			this.setVariableValues({ [variableName]: parameterName })
+			if (variableName) this.setVariableValues({ [variableName]: parameterName })
 		} else if (address.match('/Companion/ControllerValues')) {
-			let variableName = `${args[0].value}Value`
+			let variableName = getControllerVariableName(args[0].value, 'Value')
 			let value = args[1].value
 
-			this.setVariableValues({ [variableName]: value })
+			if (variableName) this.setVariableValues({ [variableName]: value })
 		} else if (address.match('/Controller/QuickAssign')) {
 			this.liveprofessorState.quickAssignMode = args[0].value
 			this.checkFeedbacks('QuickAssignMode')
