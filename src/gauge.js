@@ -62,14 +62,14 @@ function drawCircle(buffer, width, height, cx, cy, radius, color, alpha = 255) {
 }
 
 function buildHorseshoePath(width, height) {
-	const leftX = width * 0.14
-	const rightX = width * 0.86
+	const leftX = width * 0.06
+	const rightX = width * 0.94
 	const centerX = width / 2
-	const archCenterY = height * 0.31
+	const archCenterY = height * 0.3
 	const archRadiusX = (rightX - leftX) / 2
-	const archRadiusY = height * 0.24
-	const legBottomY = height * 0.56
-	const legSteps = Math.max(8, Math.round(height * 0.28))
+	const archRadiusY = height * 0.25
+	const legBottomY = height * 0.94
+	const legSteps = Math.max(12, Math.round(height * 0.65))
 	const archSteps = Math.max(32, Math.round(width * 1.1))
 	const points = []
 
@@ -130,7 +130,7 @@ function renderArcGauge(value, options = {}) {
 
 exports.DEFAULT_LOW_COLOR = DEFAULT_LOW_COLOR
 exports.DEFAULT_MID_COLOR = DEFAULT_MID_COLOR
-exports.DEFAULT_HIGH_COLOR = DEFAULT_HIGH_COLOB
+exports.DEFAULT_HIGH_COLOR = DEFAULT_HIGH_COLOR
 exports.getThresholdColor = getThresholdColor
 exports.normalizePercent = normalizePercent
 exports.renderArcGauge = renderArcGauge
