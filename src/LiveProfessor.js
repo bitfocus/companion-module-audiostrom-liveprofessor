@@ -276,6 +276,7 @@ class LiveProfessorInstance extends InstanceBase {
 			//Get button nr:
 			let nr = parseInt(address.substring(17))
 			this.liveprofessorState.rotaryValues[nr - 1] = args[0].value
+			if (nr >= 1 && nr <= ROTARY_COUNT) this.setVariableValues({ [`Rotary${nr}Value`]: args[0].value })
 
 			this.checkFeedbacks('Rotary')
 		} else if (address.match('/Command/General/TouchAndTurnChange')) {
