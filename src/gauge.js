@@ -61,26 +61,56 @@ function drawCircle(buffer, width, height, cx, cy, radius, color, alpha = 255) {
 	}
 }
 
+function buildHorseshoePath(width, height) {
+	const leftX = width * 0.14
+	const rightX = width * 0.86
+	const centerX = width / 2
+	const archCenterY = height * 0.31
+	const archRadiusX = (rightX - leftX) / 2
+	const archRadiusY = height * 0.24
+	const legBottomY = height * 0.56
+	const legSteps = Math.max(8, Math.round(height * 0.28))
+	const archSteps = Math.max(32, Math.round(width * 1.1))
+	const points = []
+
+	for (let i = 0; i <= legSteps; i++) {
+		const position = i / legSteps
+		points.push({
+			x: leftX,
+			y: legBottomY + (archCenterY - legBottomY) * position,
+		})
+	}
+
+	for (let i = 1; i <= archSteps; i++) {
+		const angle = Math.PI + Math.PI * (i / archSteps)
+		points.push({
+			x: centerX + Math.cos(angle) * archRadiusX,
+			y: archCenterY + Math.sin(angle) * archRadiusY,
+		})
+	}
+
+	for (let i = 1; i <= legSteps; i++) {
+		const position = i / legSteps
+		points.push({
+			x: rightX,
+			y: archCenterY + (legBottomY - archCenterY) * position,
+		})
+	}
+
+	return points
+}
+
 function drawArc(buffer, width, height, value, color, alpha, options = {}) {
 	const progress = normalizePercent(value)
 	const size = Math.min(width, height)
-	const centerX = width / 2
-	const centerY = height * 0.47
-	const radius = size * 0.36
 	const lineRadius = Math.max(2, size * 0.05)
-	const leftAngle = (135 * Math.PI) / 180
-	const rightAngle = (405 * Math.PI) / 180
-	const startAngle = options.mirror ? rightAngle : leftAngle
-	const endAngle = options.mirror ? leftAngle : rightAngle
-	const sweep = endAngle - startAngle
-	const steps = Math.max(48, Math.round(size * 1.5))
-	const drawnSteps = Math.round(steps * progress)
+	const path = buildHorseshoePath(width, height)
+	const points = options.mirror ? path.reverse() : path
+	const drawnSteps = Math.round((points.length - 1) * progress)
 
 	for (let i = 0; i <= drawnSteps; i++) {
-		const angle = startAngle + sweep * (i / steps)
-		const x = centerX + Math.cos(angle) * radius
-		const y = centerY + Math.sin(angle) * radius
-		drawCircle(buffer, width, height, x, y, lineRadius, color, alpha)
+		const point = points[i]
+		drawCircle(buffer, width, height, point.x, point.y, lineRadius, color, alpha)
 	}
 }
 
@@ -100,7 +130,7 @@ function renderArcGauge(value, options = {}) {
 
 exports.DEFAULT_LOW_COLOR = DEFAULT_LOW_COLOR
 exports.DEFAULT_MID_COLOR = DEFAULT_MID_COLOR
-exports.DEFAULT_HIGH_COLOR = DEFAULT_HIGH_COLOR
+exports.DEFAULT_HIGH_COLOR = DEFAULT_HIGH_COLOB
 exports.getThresholdColor = getThresholdColor
 exports.normalizePercent = normalizePercent
 exports.renderArcGauge = renderArcGauge
