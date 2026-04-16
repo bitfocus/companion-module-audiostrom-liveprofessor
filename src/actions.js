@@ -1,11 +1,3 @@
-const { ROTARY_COUNT } = require('./constants')
-
-function setRotaryVariable(self, id, value) {
-	if (id >= 1 && id <= ROTARY_COUNT) {
-		self.setVariableValues({ [`Rotary${id}Value`]: value })
-	}
-}
-
 exports.getActions = function (self) {
 	const GenericCommands = [
 		{ label: 'General - MIDI Panic', id: '/Command/General/MIDIPanic' },
@@ -99,7 +91,6 @@ exports.getActions = function (self) {
 			self.liveprofessorState.rotaryValues[id - 1] += incValue
 			if (self.liveprofessorState.rotaryValues[id - 1] > 1) self.liveprofessorState.rotaryValues[id - 1] = 1
 			const val = self.liveprofessorState.rotaryValues[id - 1]
-			setRotaryVariable(self, id, val)
 			self.sendOscMessage(path, [
 				{
 					type: 'f',
@@ -132,7 +123,6 @@ exports.getActions = function (self) {
 			self.liveprofessorState.rotaryValues[id - 1] -= stepValue
 			if (self.liveprofessorState.rotaryValues[id - 1] < 0) self.liveprofessorState.rotaryValues[id - 1] = 0
 			const val = self.liveprofessorState.rotaryValues[id - 1]
-			setRotaryVariable(self, id, val)
 
 			self.sendOscMessage(path, [
 				{
