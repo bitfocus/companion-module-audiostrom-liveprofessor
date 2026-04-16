@@ -25,6 +25,7 @@ class LiveProfessorInstance extends InstanceBase {
 			currentGlobalSnapshot: { id: 0, name: '' },
 			rotaryValues: new Array(ROTARY_COUNT).fill(0.0),
 			rotaryPush: new Array(ROTARY_COUNT).fill(false),
+			lastRotaryFeedback: undefined,
 			quickAssignMode: false,
 		}
 		//Set default ports
@@ -138,6 +139,7 @@ class LiveProfessorInstance extends InstanceBase {
 		for (i = 1; i <= ROTARY_COUNT; i++) {
 			variableValues[`Rotary${i}Name`] = `Rotary${i}`
 			variableValues[`Rotary${i}Value`] = '0.0'
+			variableValues[`Rotary${i}DisplayValue`] = '0.0'
 		}
 		this.setVariableValues(variableValues)
 		for (i = 1; i < 100; i++) {
@@ -272,11 +274,14 @@ class LiveProfessorInstance extends InstanceBase {
 			let nr = parseInt(address.substring(32))
 			this.liveprofessorState.buttons[nr] = args[0].value
 			this.checkFeedbacks('GenericButton')
-		} else if (address.match('/Companion/Rotary')) {
+		} else if (address.match(/^\/Companion\/Rotary\d+$/)) {
 			//Get button nr:
 			let nr = parseInt(address.substring(17))
-			this.liveprofessorState.rotaryValues[nr - 1] = args[0].value
-			if (nr >= 1 && nr <= ROTARY_COUNT) this.setVariableValues({ [`Rotary${nr}Value`]: args[0].value })
+			if (nr >= 1 && nr <= ROTARY_COUNT) {
+				this.liveprofessorState.rotaryValues[nr - 1] = args[0].value
+				this.liveprofessorState.lastRotaryFeedback = { id: nr, time: Date.now() }
+				this.setVariableValues({ [`Rotary${nr}Value`]: args[0].value })
+			}
 
 			this.checkFeedbacks('Rotary')
 		} else if (address.match('/Command/General/TouchAndTurnChange')) {
@@ -284,12 +289,12 @@ class LiveProfessorInstance extends InstanceBase {
 			let parameterName = args[0].value
 			this.setVariableValues({ TouchNTurnName: parameterName })
 		} else if (address.match('/Companion/ControllerNames')) {
-			let variableName = getControllerVariableName(args[0].value, 'Name')
+			let variableName = getControllerVariableName(args[0].value, 'Name', this.getRecentRotaryFeedbackId())
 			let parameterName = args[1].value
 
 			if (variableName) this.setVariableValues({ [variableName]: parameterName })
 		} else if (address.match('/Companion/ControllerValues')) {
-			let variableName = getControllerVariableName(args[0].value, 'Value')
+			let variableName = getControllerVariableName(args[0].value, 'DisplayValue', this.getRecentRotaryFeedbackId())
 			let value = args[1].value
 
 			if (variableName) this.setVariableValues({ [variableName]: value })
@@ -297,6 +302,13 @@ class LiveProfessorInstance extends InstanceBase {
 			this.liveprofessorState.quickAssignMode = args[0].value
 			this.checkFeedbacks('QuickAssignMode')
 		}
+	}
+
+	getRecentRotaryFeedbackId() {
+		const lastRotaryFeedback = this.liveprofessorState.lastRotaryFeedback
+		if (!lastRotaryFeedback || Date.now() - lastRotaryFeedback.time > 1000) return undefined
+
+		return lastRotaryFeedback.id
 	}
 }
 

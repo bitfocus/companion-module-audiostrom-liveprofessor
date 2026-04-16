@@ -432,7 +432,7 @@ exports.getPresets = function () {
 			label: 'Rotary Label ' + i,
 
 			style: {
-				text: '$(LiveProfessor:Rotary' + i + 'Name)\\n$(LiveProfessor:Rotary' + i + 'Value)',
+				text: '$(LiveProfessor:Rotary' + i + 'Name)\\n$(LiveProfessor:Rotary' + i + 'DisplayValue)',
 				size: 'auto',
 				color: '16777215',
 				bgcolor: combineRgb(0, 0, 0),

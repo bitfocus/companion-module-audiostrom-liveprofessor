@@ -17,6 +17,7 @@ exports.getVariables = function () {
 	for (i = 1; i <= ROTARY_COUNT; i++) {
 		variables.push({ variableId: 'Rotary' + i + 'Name', name: 'Rotary Name ' + i })
 		variables.push({ variableId: 'Rotary' + i + 'Value', name: 'Rotary Value ' + i })
+		variables.push({ variableId: 'Rotary' + i + 'DisplayValue', name: 'Rotary Display Value ' + i })
 	}
 
 	for (i = 1; i < 100; i++) {
