@@ -1,5 +1,6 @@
 const { combineRgb } = require('@companion-module/base')
 const { ROTARY_COUNT } = require('./constants')
+const { DEFAULT_HIGH_COLOR, DEFAULT_LOW_COLOR, DEFAULT_MID_COLOR } = require('./gauge')
 exports.getPresets = function () {
 	let presets = []
 
@@ -440,7 +441,61 @@ exports.getPresets = function () {
 			steps: [],
 			feedbacks: [],
 		})
+
+		presets.push({
+			type: 'button',
+			category: 'Rotaries',
+			label: 'Rotary Arc Gauge ' + i,
+
+			style: {
+				text: '$(LiveProfessor:Rotary' + i + 'Name)\\n$(LiveProfessor:Rotary' + i + 'DisplayValue)',
+				size: 'auto',
+				color: '16777215',
+				bgcolor: combineRgb(0, 0, 0),
+			},
+			steps: [],
+			feedbacks: [
+				{
+					feedbackId: 'RotaryArcGauge',
+					options: {
+						target: i,
+						lowThreshold: 65,
+						highThreshold: 85,
+						lowColor: DEFAULT_LOW_COLOR,
+						midColor: DEFAULT_MID_COLOR,
+						highColor: DEFAULT_HIGH_COLOR,
+						invert: false,
+					},
+				},
+			],
+		})
 	}
+
+	presets.push({
+		type: 'button',
+		category: 'Meters',
+		label: 'DSP Arc Gauge',
+		style: {
+			text: 'DSP\\n$(LiveProfessor:DSPmeter)',
+			size: 'auto',
+			color: '16777215',
+			bgcolor: combineRgb(0, 0, 0),
+		},
+		steps: [],
+		feedbacks: [
+			{
+				feedbackId: 'DspArcGauge',
+				options: {
+					lowThreshold: 65,
+					highThreshold: 85,
+					lowColor: DEFAULT_LOW_COLOR,
+					midColor: DEFAULT_MID_COLOR,
+					highColor: DEFAULT_HIGH_COLOR,
+					invert: false,
+				},
+			},
+		],
+	})
 
 	presets.push({
 		type: 'button',

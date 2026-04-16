@@ -11,6 +11,7 @@ const { ROTARY_COUNT } = require('./constants')
 const { getControllerVariableName } = require('./controllerVariables')
 
 var tempoTimer
+var dspMeterTimer
 class LiveProfessorInstance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
@@ -26,6 +27,8 @@ class LiveProfessorInstance extends InstanceBase {
 			rotaryValues: new Array(ROTARY_COUNT).fill(0.0),
 			rotaryPush: new Array(ROTARY_COUNT).fill(false),
 			lastRotaryFeedback: undefined,
+			dspMeter: 0,
+			dspMeterSubscriptions: 0,
 			quickAssignMode: false,
 		}
 		//Set default ports
@@ -48,6 +51,7 @@ class LiveProfessorInstance extends InstanceBase {
 		}
 		this.connecting = false
 		clearInterval(tempoTimer)
+		this.stopDspMeterPolling()
 	}
 
 	//Called when the configuration changes
@@ -134,6 +138,7 @@ class LiveProfessorInstance extends InstanceBase {
 			ActiveCueName: '',
 			ActiveGlobalSnapshot: '',
 			TouchNTurnName: '',
+			DSPmeter: '0.0',
 		}
 		let i
 		for (i = 1; i <= ROTARY_COUNT; i++) {
@@ -268,6 +273,12 @@ class LiveProfessorInstance extends InstanceBase {
 				60000 / tempo / 2,
 			)
 		}
+		if (address.match('/DSPmeter')) {
+			const dspMeter = Number(args[0]?.value ?? 0)
+			this.liveprofessorState.dspMeter = dspMeter
+			this.setVariableValues({ DSPmeter: dspMeter })
+			this.checkFeedbacks('DspArcGauge')
+		}
 		/* Generic Buttons */
 		if (address.match('/Companion/GenericButtons')) {
 			//Get button nr:
@@ -284,6 +295,7 @@ class LiveProfessorInstance extends InstanceBase {
 			}
 
 			this.checkFeedbacks('Rotary')
+			this.checkFeedbacks('RotaryArcGauge')
 		} else if (address.match('/Command/General/TouchAndTurnChange')) {
 			//Get button nr:
 			let parameterName = args[0].value
@@ -309,6 +321,29 @@ class LiveProfessorInstance extends InstanceBase {
 		if (!lastRotaryFeedback || Date.now() - lastRotaryFeedback.time > 1000) return undefined
 
 		return lastRotaryFeedback.id
+	}
+
+	subscribeDspMeter() {
+		this.liveprofessorState.dspMeterSubscriptions++
+		if (!dspMeterTimer) {
+			dspMeterTimer = setInterval(() => {
+				this.sendOscMessage('/StatusPoll', [])
+			}, 200)
+			this.sendOscMessage('/StatusPoll', [])
+		}
+	}
+
+	unsubscribeDspMeter() {
+		this.liveprofessorState.dspMeterSubscriptions = Math.max(0, this.liveprofessorState.dspMeterSubscriptions - 1)
+		if (this.liveprofessorState.dspMeterSubscriptions === 0) this.stopDspMeterPolling()
+	}
+
+	stopDspMeterPolling() {
+		if (dspMeterTimer) {
+			clearInterval(dspMeterTimer)
+			dspMeterTimer = undefined
+		}
+		if (this.liveprofessorState) this.liveprofessorState.dspMeterSubscriptions = 0
 	}
 }
 

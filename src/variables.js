@@ -24,6 +24,7 @@ exports.getVariables = function () {
 		variables.push({ variableId: 'ViewSetName' + i, name: 'Name of View Set ' + i })
 	}
 	variables.push({ variableId: 'tempo', name: 'Tempo' })
+	variables.push({ variableId: 'DSPmeter', name: 'DSP Meter' })
 	variables.push({ variableId: 'TouchNTurnName', name: 'Touch & Turn Parameter' })
 
 	return variables
