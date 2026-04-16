@@ -61,15 +61,17 @@ function drawCircle(buffer, width, height, cx, cy, radius, color, alpha = 255) {
 	}
 }
 
-function drawArc(buffer, width, height, value, color, alpha) {
+function drawArc(buffer, width, height, value, color, alpha, options = {}) {
 	const progress = normalizePercent(value)
 	const size = Math.min(width, height)
 	const centerX = width / 2
 	const centerY = height * 0.62
 	const radius = size * 0.35
 	const lineRadius = Math.max(2, size * 0.045)
-	const startAngle = (210 * Math.PI) / 180
-	const endAngle = (-30 * Math.PI) / 180
+	const leftAngle = (150 * Math.PI) / 180
+	const rightAngle = (390 * Math.PI) / 180
+	const startAngle = options.mirror ? rightAngle : leftAngle
+	const endAngle = options.mirror ? leftAngle : rightAngle
 	const sweep = endAngle - startAngle
 	const steps = Math.max(48, Math.round(size * 1.5))
 	const drawnSteps = Math.round(steps * progress)
@@ -90,8 +92,8 @@ function renderArcGauge(value, options = {}) {
 	const background = colorNumberToRgb(options.backgroundColor ?? combineRgb(70, 70, 70))
 	const foreground = colorNumberToRgb(getThresholdColor(displayValue, options))
 
-	drawArc(buffer, width, height, 1, background, 120)
-	drawArc(buffer, width, height, displayValue, foreground, 255)
+	drawArc(buffer, width, height, 1, background, 120, options)
+	drawArc(buffer, width, height, displayValue, foreground, 255, options)
 
 	return buffer
 }

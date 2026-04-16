@@ -64,8 +64,15 @@ function gaugeOptions(targetLabel) {
 		},
 		{
 			type: 'checkbox',
-			label: 'Invert direction',
+			label: 'Invert value',
 			id: 'invert',
+			default: false,
+			width: 6,
+		},
+		{
+			type: 'checkbox',
+			label: 'Mirror fill direction',
+			id: 'mirror',
 			default: false,
 			width: 6,
 		},
