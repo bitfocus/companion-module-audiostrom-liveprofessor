@@ -1,3 +1,5 @@
+const { ROTARY_COUNT } = require('./constants')
+
 exports.getVariables = function () {
 	const variables = []
 
@@ -12,15 +14,17 @@ exports.getVariables = function () {
 	for (i = 1; i < 24; i++) {
 		variables.push({ variableId: 'GenericButton' + i + 'Name', name: 'Button Name ' + i })
 	}
-	for (i = 1; i < 5; i++) {
+	for (i = 1; i <= ROTARY_COUNT; i++) {
 		variables.push({ variableId: 'Rotary' + i + 'Name', name: 'Rotary Name ' + i })
 		variables.push({ variableId: 'Rotary' + i + 'Value', name: 'Rotary Value ' + i })
+		variables.push({ variableId: 'Rotary' + i + 'DisplayValue', name: 'Rotary Display Value ' + i })
 	}
 
 	for (i = 1; i < 100; i++) {
 		variables.push({ variableId: 'ViewSetName' + i, name: 'Name of View Set ' + i })
 	}
 	variables.push({ variableId: 'tempo', name: 'Tempo' })
+	variables.push({ variableId: 'DSPmeter', name: 'DSP Meter' })
 	variables.push({ variableId: 'TouchNTurnName', name: 'Touch & Turn Parameter' })
 
 	return variables
