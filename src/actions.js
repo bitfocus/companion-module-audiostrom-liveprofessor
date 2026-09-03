@@ -210,12 +210,7 @@ exports.getActions = function (self) {
 			const cmd = await self.parseVariablesInString(event.options.command)
 			const path = cmd
 
-			self.sendOscMessage(path, [
-				{
-					type: 'f',
-					value: 1.0,
-				},
-			])
+			self.sendOscMessage(path, [])
 		},
 	}
 

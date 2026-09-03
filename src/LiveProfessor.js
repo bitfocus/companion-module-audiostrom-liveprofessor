@@ -9,6 +9,12 @@ const { getPresets } = require('./presets.js')
 const { getVariables } = require('./variables')
 
 var tempoTimer
+
+function controllerVariablePrefix(controllerName) {
+	const rotaryMatch = /^Rotary([2-5])$/.exec(controllerName)
+	return rotaryMatch ? `Rotary${Number(rotaryMatch[1]) - 1}` : controllerName
+}
+
 class LiveProfessorInstance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
@@ -284,12 +290,12 @@ class LiveProfessorInstance extends InstanceBase {
 			let parameterName = args[0].value
 			this.setVariableValues({ TouchNTurnName: parameterName })
 		} else if (address.match('/Companion/ControllerNames')) {
-			let variableName = `${args[0].value}Name`
+			let variableName = `${controllerVariablePrefix(args[0].value)}Name`
 			let parameterName = args[1].value
 
 			this.setVariableValues({ [variableName]: parameterName })
 		} else if (address.match('/Companion/ControllerValues')) {
-			let variableName = `${args[0].value}Value`
+			let variableName = `${controllerVariablePrefix(args[0].value)}Value`
 			let value = args[1].value
 
 			this.setVariableValues({ [variableName]: value })
