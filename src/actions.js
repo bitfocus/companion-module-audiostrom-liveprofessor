@@ -1,3 +1,59 @@
+function clamp(value, min, max) {
+	const number = Number(value)
+	if (!Number.isFinite(number)) return min
+
+	return Math.min(max, Math.max(min, number))
+}
+
+async function parseNumberOption(self, value, fallback) {
+	const parsed = Number(await self.parseVariablesInString(value ?? fallback))
+	if (!Number.isFinite(parsed)) return fallback
+
+	return parsed
+}
+
+function getRotaryOptions() {
+	return [
+		{
+			label: 'Rotary Nr',
+			type: 'number',
+			id: 'rotaryId',
+			width: 64,
+			default: 1,
+			min: 1,
+			max: 99,
+		},
+		{
+			label: 'Step size',
+			type: 'number',
+			id: 'stepSize',
+			width: 6,
+			default: 0.03,
+			min: 0.001,
+			max: 1,
+			tooltip: 'Amount to move the normalized rotary value per tick',
+		},
+		{
+			label: 'Fine step size',
+			type: 'number',
+			id: 'fineStepSize',
+			width: 6,
+			default: 0.005,
+			min: 0.0001,
+			max: 1,
+			tooltip: 'Amount to move per tick while the rotary is held down',
+		},
+	]
+}
+
+async function getRotaryStep(self, event, id) {
+	const normalStep = await parseNumberOption(self, event.options.stepSize, 0.03)
+	const fineStep = await parseNumberOption(self, event.options.fineStepSize, 0.005)
+	const selectedStep = self.liveprofessorState.rotaryPush[id - 1] ? fineStep : normalStep
+
+	return clamp(selectedStep, 0, 1)
+}
+
 exports.getActions = function (self) {
 	const GenericCommands = [
 		{ label: 'General - MIDI Panic', id: '/Command/General/MIDIPanic' },
@@ -70,23 +126,11 @@ exports.getActions = function (self) {
 
 	actions['GenericRotaryRight'] = {
 		name: 'Generic Rotary Control-Rotate Right',
-		options: [
-			{
-				label: 'Rotary Nr',
-				type: 'number',
-				id: 'rotaryId',
-				width: 64,
-				default: 1,
-				min: 1,
-				max: 99,
-			},
-		],
+		options: getRotaryOptions(),
 		callback: async (event) => {
 			const id = Number(await self.parseVariablesInString(event.options.rotaryId))
 			const path = '/Companion/Rotary' + id
-
-			let incValue = 0.03
-			if (self.liveprofessorState.rotaryPush[id - 1]) incValue = 0.005
+			const incValue = await getRotaryStep(self, event, id)
 
 			self.liveprofessorState.rotaryValues[id - 1] += incValue
 			if (self.liveprofessorState.rotaryValues[id - 1] > 1) self.liveprofessorState.rotaryValues[id - 1] = 1
@@ -101,24 +145,11 @@ exports.getActions = function (self) {
 	}
 	actions['GenericRotaryLeft'] = {
 		name: 'Generic Rotary Control-Rotate Left',
-		options: [
-			{
-				label: 'Rotary Nr',
-				type: 'number',
-				id: 'rotaryId',
-				width: 64,
-				default: 1,
-				min: 1,
-				max: 99,
-			},
-		],
+		options: getRotaryOptions(),
 		callback: async (event) => {
 			const id = Number(await self.parseVariablesInString(event.options.rotaryId))
 			const path = '/Companion/Rotary' + id
-
-			//Increase precision when rotary is pushed in
-			let stepValue = 0.03
-			if (self.liveprofessorState.rotaryPush[id - 1]) stepValue = 0.005
+			const stepValue = await getRotaryStep(self, event, id)
 
 			self.liveprofessorState.rotaryValues[id - 1] -= stepValue
 			if (self.liveprofessorState.rotaryValues[id - 1] < 0) self.liveprofessorState.rotaryValues[id - 1] = 0

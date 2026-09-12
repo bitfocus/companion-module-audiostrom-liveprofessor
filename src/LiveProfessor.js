@@ -7,8 +7,11 @@ const { getActions } = require('./actions')
 const { getFeedbacks } = require('./feedbacks')
 const { getPresets } = require('./presets.js')
 const { getVariables } = require('./variables')
+const { ROTARY_COUNT } = require('./constants')
+const { getControllerVariableName } = require('./controllerVariables')
 
 var tempoTimer
+var dspMeterTimer
 class LiveProfessorInstance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
@@ -21,8 +24,11 @@ class LiveProfessorInstance extends InstanceBase {
 			tempoflash: false,
 			ping: false,
 			currentGlobalSnapshot: { id: 0, name: '' },
-			rotaryValues: new Array(99).fill(0.0),
-			rotaryPush: new Array(99).fill(false),
+			rotaryValues: new Array(ROTARY_COUNT).fill(0.0),
+			rotaryPush: new Array(ROTARY_COUNT).fill(false),
+			lastRotaryFeedback: undefined,
+			dspMeter: 0,
+			dspMeterSubscriptions: 0,
 			quickAssignMode: false,
 		}
 		//Set default ports
@@ -45,6 +51,7 @@ class LiveProfessorInstance extends InstanceBase {
 		}
 		this.connecting = false
 		clearInterval(tempoTimer)
+		this.stopDspMeterPolling()
 	}
 
 	//Called when the configuration changes
@@ -117,7 +124,7 @@ class LiveProfessorInstance extends InstanceBase {
 	init_variables() {
 		this.setVariableDefinitions(getVariables())
 
-		this.setVariableValues({
+		const variableValues = {
 			GenericButton1Name: 'Button 1',
 			GenericButton2Name: 'Button 2',
 			GenericButton3Name: 'Button 3',
@@ -131,16 +138,15 @@ class LiveProfessorInstance extends InstanceBase {
 			ActiveCueName: '',
 			ActiveGlobalSnapshot: '',
 			TouchNTurnName: '',
-			Rotary1Name: 'Rotary1',
-			Rotary1Value: '0.0',
-			Rotary2Name: 'Rotary2',
-			Rotary2Value: '0.0',
-			Rotary3Name: 'Rotary3',
-			Rotary3Value: '0.0',
-			Rotary4Name: 'Rotary4',
-			Rotary4Value: '0.0',
-		})
+			DSPmeter: '0.0',
+		}
 		let i
+		for (i = 1; i <= ROTARY_COUNT; i++) {
+			variableValues[`Rotary${i}Name`] = `Rotary${i}`
+			variableValues[`Rotary${i}Value`] = '0.0'
+			variableValues[`Rotary${i}DisplayValue`] = '0.0'
+		}
+		this.setVariableValues(variableValues)
 		for (i = 1; i < 100; i++) {
 			this.setVariableValues({ [`GSname${i}`]: `Snap ${i}` })
 		}
@@ -267,36 +273,77 @@ class LiveProfessorInstance extends InstanceBase {
 				60000 / tempo / 2,
 			)
 		}
+		if (address.match('/DSPmeter')) {
+			const dspMeter = Number(args[0]?.value ?? 0)
+			this.liveprofessorState.dspMeter = dspMeter
+			this.setVariableValues({ DSPmeter: dspMeter })
+			this.checkFeedbacks('DspArcGauge')
+		}
 		/* Generic Buttons */
 		if (address.match('/Companion/GenericButtons')) {
 			//Get button nr:
 			let nr = parseInt(address.substring(32))
 			this.liveprofessorState.buttons[nr] = args[0].value
 			this.checkFeedbacks('GenericButton')
-		} else if (address.match('/Companion/Rotary')) {
+		} else if (address.match(/^\/Companion\/Rotary\d+$/)) {
 			//Get button nr:
 			let nr = parseInt(address.substring(17))
-			this.liveprofessorState.rotaryValues[nr - 1] = args[0].value
+			if (nr >= 1 && nr <= ROTARY_COUNT) {
+				this.liveprofessorState.rotaryValues[nr - 1] = args[0].value
+				this.liveprofessorState.lastRotaryFeedback = { id: nr, time: Date.now() }
+				this.setVariableValues({ [`Rotary${nr}Value`]: args[0].value })
+			}
 
 			this.checkFeedbacks('Rotary')
+			this.checkFeedbacks('RotaryArcGauge')
 		} else if (address.match('/Command/General/TouchAndTurnChange')) {
 			//Get button nr:
 			let parameterName = args[0].value
 			this.setVariableValues({ TouchNTurnName: parameterName })
 		} else if (address.match('/Companion/ControllerNames')) {
-			let variableName = `${args[0].value}Name`
+			let variableName = getControllerVariableName(args[0].value, 'Name', this.getRecentRotaryFeedbackId())
 			let parameterName = args[1].value
 
-			this.setVariableValues({ [variableName]: parameterName })
+			if (variableName) this.setVariableValues({ [variableName]: parameterName })
 		} else if (address.match('/Companion/ControllerValues')) {
-			let variableName = `${args[0].value}Value`
+			let variableName = getControllerVariableName(args[0].value, 'DisplayValue', this.getRecentRotaryFeedbackId())
 			let value = args[1].value
 
-			this.setVariableValues({ [variableName]: value })
+			if (variableName) this.setVariableValues({ [variableName]: value })
 		} else if (address.match('/Controller/QuickAssign')) {
 			this.liveprofessorState.quickAssignMode = args[0].value
 			this.checkFeedbacks('QuickAssignMode')
 		}
+	}
+
+	getRecentRotaryFeedbackId() {
+		const lastRotaryFeedback = this.liveprofessorState.lastRotaryFeedback
+		if (!lastRotaryFeedback || Date.now() - lastRotaryFeedback.time > 1000) return undefined
+
+		return lastRotaryFeedback.id
+	}
+
+	subscribeDspMeter() {
+		this.liveprofessorState.dspMeterSubscriptions++
+		if (!dspMeterTimer) {
+			dspMeterTimer = setInterval(() => {
+				this.sendOscMessage('/StatusPoll', [])
+			}, 200)
+			this.sendOscMessage('/StatusPoll', [])
+		}
+	}
+
+	unsubscribeDspMeter() {
+		this.liveprofessorState.dspMeterSubscriptions = Math.max(0, this.liveprofessorState.dspMeterSubscriptions - 1)
+		if (this.liveprofessorState.dspMeterSubscriptions === 0) this.stopDspMeterPolling()
+	}
+
+	stopDspMeterPolling() {
+		if (dspMeterTimer) {
+			clearInterval(dspMeterTimer)
+			dspMeterTimer = undefined
+		}
+		if (this.liveprofessorState) this.liveprofessorState.dspMeterSubscriptions = 0
 	}
 }
 
