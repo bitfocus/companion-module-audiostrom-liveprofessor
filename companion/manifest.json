@@ -15,7 +15,7 @@
 	],
 	"legacyIds": ["LiveProfessor"],
 	"runtime": {
-		"type": "node18",
+		"type": "node26",
 		"api": "nodejs-ipc",
 		"apiVersion": "1.0.0",
 		"entrypoint": "../src/LiveProfessor.js"
