@@ -12,16 +12,16 @@
 		"url": "git+https://github.com/bitfocus/companion-module-audiostrom-liveprofessor.git"
 	},
 	"engines": {
-		"node": "^22.20",
+		"node": "^26.5",
 		"yarn": "^4"
 	},
 	"dependencies": {
-		"@companion-module/base": "~1.11.2",
+		"@companion-module/base": "~1.15.0",
 		"osc": "^2.4.5"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.8.0",
-		"prettier": "^3.4.2"
+		"@companion-module/tools": "^2.9.0",
+		"prettier": "^3.6.2"
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json",
 	"packageManager": "yarn@4.13.0"
